@@ -1,0 +1,14 @@
+<resources>
+    <!-- Bạn dán các dòng này vào file res/values/strings.xml của bạn -->
+    <string name="title_chi_tiet_hang_hoa">Chi tiết hàng hoá</string>
+    <string name="label_ten_hang_hoa">Tên hàng hoá</string>
+    <string name="label_ma_hang_hoa">Mã hàng hoá</string>
+    <string name="label_loai_hang_hoa">Loại hàng hoá</string>
+    <string name="label_gia">Giá</string>
+    <string name="label_so_luong">Số lượng</string>
+    <string name="label_thong_tin_ncc">Thông tin nhà cung cấp</string>
+    <string name="label_ten_ncc">Tên nhà cung cấp</string>
+    <string name="label_email_ncc">Email NCC</string>
+    <string name="label_sdt_ncc">SĐT NCC</string>
+    <string name="desc_sua_hang_hoa">Sửa hàng hoá</string>
+</resources>

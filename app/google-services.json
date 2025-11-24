@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "509248328663",
+    "project_id": "quanlyhanghoa-e4135",
+    "storage_bucket": "quanlyhanghoa-e4135.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:509248328663:android:0e3f31e6146dab52def192",
+        "android_client_info": {
+          "package_name": "com.example.sahngha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgC5ElW34vzW6msLFpEnLQfz2tromkjX8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
