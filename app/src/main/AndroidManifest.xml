@@ -15,19 +15,32 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SửaHàngHóa">
 
-        <!-- ============== 1. MÀN HÌNH CHẠY ĐẦU TIÊN (Trangchu) ============== -->
+        <!-- ============== 1. MÀN HÌNH CHẠY ĐẦU TIÊN (Welcome) ============== -->
+        <!-- Đã sửa: Đặt Welcome làm Launcher -->
         <activity
-            android:name=".Trangchu"
-            android:exported="true">
+            android:name=".Welcome"
+            android:exported="true"
+            android:label="Màn Hình Chào Mừng">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- ============== 2. CÁC MÀN HÌNH PHỤ ============== -->
+        <!-- ============== 2. CÁC MÀN HÌNH KHÁC ============== -->
 
-        <!-- MainActivity giờ chỉ là màn hình thường (đã xóa intent-filter) -->
+        <!-- Đã sửa: Thêm dấu ngoặc kép " bị thiếu ở cuối label -->
+        <activity
+            android:name=".Dangnhap"
+            android:exported="false"
+            android:label="Màn Hình Đăng Nhập"
+            android:parentActivityName=".Welcome" />
+
+        <!-- Đã sửa: Trangchu bỏ intent-filter đi để không chạy tranh với Welcome -->
+        <activity
+            android:name=".Trangchu"
+            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="false" />
