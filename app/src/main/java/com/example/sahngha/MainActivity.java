@@ -1,12 +1,11 @@
 package com.example.sahngha;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.widget.EditText; // Đã đổi tên biến sang edtTimHh
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,36 +15,33 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import android.widget.Button;
+import android.view.View;
+import android.widget.AdapterView; // Cần thiết cho setOnItemClickListener
+
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements HangHoaAdapter.OnItemActionListener {
 
     ListView lvHangHoa;
     HangHoaAdapter adapter;
 
-    // dsHangHoa sẽ đóng vai trò là danh sách hiển thị (displayList)
     ArrayList<HangHoa> dsHangHoa;
-    // originalList dùng để lưu trữ dữ liệu gốc, không bị thay đổi khi tìm kiếm
     ArrayList<HangHoa> originalList;
 
-    // Đã đổi tên biến sang edtTimHh, ánh xạ tới R.id.edt_timhh
     EditText edtTimHh;
-
     TextView txtTong;
     Button btn_Them;
 
-    // Firebase database
     FirebaseDatabase database;
     DatabaseReference hangHoaRef;
+
+    // ĐÃ BỎ: private boolean isSelectorMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +53,6 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
         txtTong = findViewById(R.id.txtTong);
         lvHangHoa = findViewById(R.id.lvHangHoa);
         btn_Them = findViewById(R.id.btnThem);
-        // Ánh xạ EditText tìm kiếm với ID mới: R.id.edt_timhh
         edtTimHh = findViewById(R.id.edt_timhh);
 
         // Khởi tạo Firebase
@@ -75,16 +70,31 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
         // Lấy dữ liệu từ Firebase
         layDuLieuFirebase();
 
+        // === LOGIC CŨ: CHẾ ĐỘ QUẢN LÝ MẶC ĐỊNH ===
+
+        // 1. Nút Thêm Hàng
         btn_Them.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, themhanghoa.class);
             startActivity(intent);
+        });
+
+        // 2. Click Item (Xem Chi tiết Hàng hóa)
+        lvHangHoa.setOnItemClickListener((parent, view, position, id) -> {
+            HangHoa selectedHangHoa = dsHangHoa.get(position);
+
+            // Logic Mở màn hình ChiTietHangHoaActivity
+            Intent detailIntent = new Intent(MainActivity.this, ChiTietHangHoaActivity.class);
+            detailIntent.putExtra("MA_HANG_HOA", selectedHangHoa.getMaHangHoa());
+            startActivity(detailIntent);
         });
 
         // Thiết lập chức năng tìm kiếm
         setupSearchListener();
     }
 
-    // HÀM THIẾT LẬP LẮNG NGHE TÌM KIẾM
+    // ĐÃ BỎ: setupSelectorModeListener()
+
+    // HÀM THIẾT LẬP LẮNG NGHE TÌM KIẾM (GIỮ NGUYÊN)
     private void setupSearchListener() {
         edtTimHh.addTextChangedListener(new TextWatcher() {
             @Override
@@ -103,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
         });
     }
 
-    // HÀM LỌC DỮ LIỆU
+    // HÀM LỌC DỮ LIỆU (GIỮ NGUYÊN)
     private void filterList(String query) {
         String lowerCaseQuery = query.toLowerCase().trim();
 
@@ -139,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
         capNhatTong();
     }
 
-    // CHÚ Ý: CHỈNH SỬA HÀM layDuLieuFirebase()
+    // HÀM layDuLieuFirebase (GIỮ NGUYÊN)
     private void layDuLieuFirebase() {
         hangHoaRef.addValueEventListener(new ValueEventListener() {
             @Override

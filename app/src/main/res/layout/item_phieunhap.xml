@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="#FFFFFF"
+    android:padding="12dp"
+    android:gravity="center_vertical"
+    android:elevation="2dp"
+    android:layout_marginBottom="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"> <LinearLayout
+    android:orientation="vertical"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1">
+
+    <TextView
+        android:id="@+id/tvMaPhieu"
+        android:text="Mã Phiếu: PN-20251126"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#5E13E6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp">
+        <TextView
+            android:id="@+id/tvNgayNhap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="26/11/2025"
+            android:textColor="#666"
+            android:textSize="14sp"
+            android:layout_marginEnd="8dp"/>
+        <TextView
+            android:id="@+id/tvNguoiTao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(Admin)"
+            android:textColor="#666"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvTongTien"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Tổng tiền: 5.500.000đ"
+        android:textStyle="bold"
+        android:textColor="#4CAF50"
+        android:textSize="15sp" />
+
+</LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end">
+
+        <ImageButton
+            android:id="@+id/btnXoa"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:backgroundTint="#AF6B7B"
+            android:src="@drawable/ic_delete"
+            android:padding="6dp"
+            android:contentDescription="Xóa" />
+
+    </LinearLayout>
+
+</LinearLayout>
