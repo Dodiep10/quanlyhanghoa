@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_phieunhap"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F9F9F9"
+    android:padding="16dp">
+
+    <TextView
+        android:text="Quản Lý Phiếu Nhập"
+        android:layout_marginTop="20dp"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#5E13E6"  android:layout_marginBottom="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:text="Danh sách chi tiết các phiếu nhập hàng"
+        android:textSize="14sp"
+        android:textColor="#777"
+        android:layout_marginBottom="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/edt_timphieu"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Tìm kiếm theo Mã phiếu nhập..."
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:singleLine="true"
+        android:textSize="16sp"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:background="@drawable/rounded_search_background"
+        android:layout_marginBottom="12dp"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="10dp"
+        android:textColor="#000000"
+        android:textColorHint="#999" />
+
+    <Button
+        android:id="@+id/btnThemPhieu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_gravity="end"
+        android:backgroundTint="#4CAF50" android:text="+ Tạo Phiếu Nhập"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/txtTongPhieu"
+        android:text="Tổng: 0 phiếu nhập"
+        android:textSize="16sp"
+        android:textStyle="italic"
+        android:textColor="#555"
+        android:layout_marginBottom="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ListView
+        android:id="@+id/lvPhieuNhap"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:dividerHeight="8dp"
+        android:padding="8dp" />
+
+</LinearLayout>
