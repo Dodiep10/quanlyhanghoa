@@ -4,22 +4,22 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PhieuNhap {
+public class Phieunhap {
     private String maPhieu; // Mã phiếu nhập (ID)
     private long thoiGianNhap; // Timestamp thời gian nhập (dùng long để lưu trữ trên Firebase)
     private String nguoiNhap; // Tên người tạo phiếu
     private double tongTien; // Tổng giá trị phiếu
     // HashMap lưu trữ chi tiết các mặt hàng: Key là MaHangHoa, Value là ChiTietNhapHang
     // Hoặc sử dụng List<ChiTietNhapHang> nếu bạn có Class ChiTietNhapHang riêng
-    private Map<String, ChiTietNhapHang> chiTiet;
+    private Map<String, chitietnhaphang> chiTiet;
 
     // Constructor mặc định (cần thiết cho Firebase)
-    public PhieuNhap() {
+    public Phieunhap() {
         // Cần có constructor rỗng cho Firebase Database
     }
 
     // Constructor có tham số (tùy chọn)
-    public PhieuNhap(String maPhieu, long thoiGianNhap, String nguoiNhap, double tongTien, Map<String, ChiTietNhapHang> chiTiet) {
+    public Phieunhap(String maPhieu, long thoiGianNhap, String nguoiNhap, double tongTien, Map<String, chitietnhaphang> chiTiet) {
         this.maPhieu = maPhieu;
         this.thoiGianNhap = thoiGianNhap;
         this.nguoiNhap = nguoiNhap;
@@ -61,11 +61,11 @@ public class PhieuNhap {
         this.tongTien = tongTien;
     }
 
-    public Map<String, ChiTietNhapHang> getChiTiet() {
+    public Map<String, chitietnhaphang> getChiTiet() {
         return chiTiet;
     }
 
-    public void setChiTiet(Map<String, ChiTietNhapHang> chiTiet) {
+    public void setChiTiet(Map<String, chitietnhaphang> chiTiet) {
         this.chiTiet = chiTiet;
     }
 }

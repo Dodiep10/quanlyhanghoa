@@ -1,17 +1,20 @@
 package com.example.sahngha;
 
-public class ChiTietNhapHang {
+// 1. LOẠI BỎ TỪ KHÓA 'public'
+// Nếu class KHÔNG phải là public, nó không cần khớp với tên file.
+// Tuy nhiên, việc loại bỏ public có thể gây ra lỗi khi truy cập từ package khác.
+class chitietnhaphang {
     private String maHangHoa;
     private String tenHangHoa;
-    private int soLuongNhap;      // Số lượng nhập (Yêu cầu số lượng)
-    private double giaNhap;       // Giá nhập của một đơn vị sản phẩm (Yêu cầu giá thành)
+    private int soLuongNhap;
+    private double giaNhap;
 
-    // Constructor mặc định (QUAN TRỌNG cho Firebase)
-    public ChiTietNhapHang() {
+    // 2. Tên Constructor phải khớp với tên Class
+    chitietnhaphang() {
     }
 
-    // Constructor có tham số
-    public ChiTietNhapHang(String maHangHoa, String tenHangHoa, int soLuongNhap, double giaNhap) {
+    // 3. Tên Constructor có tham số phải khớp với tên Class
+    chitietnhaphang(String maHangHoa, String tenHangHoa, int soLuongNhap, double giaNhap) {
         this.maHangHoa = maHangHoa;
         this.tenHangHoa = tenHangHoa;
         this.soLuongNhap = soLuongNhap;
@@ -20,15 +23,13 @@ public class ChiTietNhapHang {
 
     // --- PHƯƠNG THỨC TÍNH TOÁN (Thành tiền của riêng mặt hàng này) ---
 
-    /**
-     * Tính toán Thành tiền/Giá thành của riêng mặt hàng này.
-     */
     public double getThanhTien() {
         return this.soLuongNhap * this.giaNhap;
     }
 
-    // --- GETTERS VÀ SETTERS (Đã đầy đủ) ---
+    // --- GETTERS VÀ SETTERS (Giữ nguyên) ---
 
+    // Lưu ý: Các phương thức này vẫn phải là public để được truy cập
     public String getMaHangHoa() { return maHangHoa; }
     public void setMaHangHoa(String maHangHoa) { this.maHangHoa = maHangHoa; }
 
