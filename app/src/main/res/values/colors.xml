@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Các màu mặc định có sẵn (giữ nguyên) -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- THÊM CÁC MÀU NÀY VÀO ĐỂ HẾT LỖI -->
+    <color name="teal_main">#2F8790</color>  <!-- Màu xanh ngọc chính -->
+    <color name="teal_dark">#1A5F66</color>  <!-- Màu xanh đậm -->
+    <color name="teal_text">#0F5861</color>  <!-- Màu chữ -->
+    <color name="holo_purple">#9C27B0</color> <!-- Màu tím cho icon báo cáo -->
 </resources>

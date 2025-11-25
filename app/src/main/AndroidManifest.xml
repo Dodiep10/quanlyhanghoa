@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -12,29 +14,37 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SửaHàngHóa">
-        <activity android:name=".themhanghoa" />
+
+        <!-- ============== 1. MÀN HÌNH CHẠY ĐẦU TIÊN (Trangchu) ============== -->
         <activity
-            android:name=".MainActivity"
+            android:name=".Trangchu"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- *** THÊM CHỈNH SỬA - NA *** -->
-        <!-- Khai báo Activity Chi Tiết Hàng Hóa và sửa hàng hoá -->
+
+        <!-- ============== 2. CÁC MÀN HÌNH PHỤ ============== -->
+
+        <!-- MainActivity giờ chỉ là màn hình thường (đã xóa intent-filter) -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <activity android:name=".themhanghoa" />
+
         <activity
             android:name=".ChiTietHangHoaActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".SuaHangHoaActivity"
             android:exported="false"
             android:label="Sửa Hàng Hóa"
-            android:parentActivityName=".ChiTietHangHoaActivity"/> <!-- Báo cho hệ thống biết "mũi tên back" sẽ quay về màn Chi Tiết -->
+            android:parentActivityName=".ChiTietHangHoaActivity" />
+
     </application>
-
-
 
 </manifest>

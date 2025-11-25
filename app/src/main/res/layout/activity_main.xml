@@ -46,6 +46,7 @@
         android:layout_height="wrap_content" />
 
     <!-- ListView hiển thị danh sách hàng hóa -->
+1
     <ListView
         android:id="@+id/lvHangHoa"
         android:layout_width="match_parent"
