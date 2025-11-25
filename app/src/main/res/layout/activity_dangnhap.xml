@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_welcome_gradient">
+
+    <!-- LỚP 1: Ảnh nền bản đồ (Mờ) -->
+
+    <!-- LỚP 2: NỘI DUNG CHÍNH -->
+    <ImageView
+        android:id="@+id/imageView10"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@drawable/purple_and_white_modern_mobile_prototype__2_" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Nút Back -->
+        <!-- Bạn có thể thêm ImageView nút Back ở đây nếu cần -->
+
+        <!-- Tiêu đề: Welcome -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:fontFamily="sans-serif-light"
+            android:text="Welcome"
+            android:textColor="#FFFFFF"
+            android:textSize="60sp" />
+
+        <!-- Tiêu đề: Back! -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-10dp"
+            android:text="Back!"
+            android:textColor="#FFFFFF"
+            android:textSize="60sp"
+            android:textStyle="bold" />
+
+        <!-- Ô nhập: Tên đăng nhập -->
+        <!-- Đã sửa: width match_parent, paddingStart rõ ràng, gravity center -->
+        <EditText
+            android:id="@+id/edtUsername"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="80dp"
+            android:background="@drawable/bg_white_input"
+            android:drawableStart="@android:drawable/ic_menu_myplaces"
+            android:drawablePadding="16dp"
+            android:drawableTint="#2F8790"
+            android:gravity="center_vertical"
+            android:hint="Tên đăng nhập"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textColor="#2F8790"
+            android:textColorHint="#992F8790"
+            android:textSize="16sp" />
+
+        <!-- Ô nhập: Mật khẩu -->
+        <EditText
+            android:id="@+id/edtPassword"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_white_input"
+            android:drawableStart="@android:drawable/ic_lock_lock"
+            android:drawablePadding="16dp"
+            android:drawableTint="#2F8790"
+            android:gravity="center_vertical"
+            android:hint="Mật khẩu"
+            android:inputType="textPassword"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textColor="#2F8790"
+            android:textColorHint="#992F8790"
+            android:textSize="16sp" />
+
+        <!-- Spacer để đẩy nút xuống -->
+
+        <!-- Nút ĐĂNG NHẬP -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="291dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnLoginAction"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginBottom="40dp"
+            android:background="@drawable/bg_button_login"
+            android:text="ĐĂNG NHẬP"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- Footer -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:gravity="center"
+            android:text="@Developed by ANDI"
+            android:textColor="#CCFFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</FrameLayout>

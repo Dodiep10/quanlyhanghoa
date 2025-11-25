@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_welcome_gradient">
+
+    <!-- LỚP 1: Ảnh nền bản đồ (Nằm dưới cùng) -->
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/purple_and_white_modern_mobile_prototype" />
+
+    <!-- LỚP 2: Decorate - Hoạ tiết góc trên trái -->
+
+    <!-- LỚP 3: NỘI DUNG CHÍNH (Sử dụng LinearLayout Vertical) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <!-- LOGO CHÍNH -->
+
+        <!-- Tên App: ANDI -->
+
+        <ImageView
+            android:id="@+id/imageView7"
+            android:layout_width="315dp"
+            android:layout_height="304dp"
+            app:srcCompat="@drawable/teal_and_white_modern_mobile_app_developer_instagram_post" />
+
+        <TextView
+            android:id="@+id/tvAppName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:fontFamily="sans-serif-light"
+            android:letterSpacing="0.1"
+            android:text="ANDI"
+            android:textColor="#FFFFFF"
+            android:textSize="56sp"
+            android:textStyle="bold" />
+
+        <!-- Slogan -->
+
+        <!-- Câu chào: Let's Get Started -->
+
+        <TextView
+            android:id="@+id/tvSlogan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:letterSpacing="0.05"
+            android:text="GIẢI PHÁP THÔNG MINH CHO DOANH NGHIỆP"
+            android:textColor="#CCFFFFFF"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvWelcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:shadowColor="#40000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4"
+            android:text="Let's Get\nStarted!"
+            android:textColor="#FFFFFF"
+            android:textSize="60sp"
+            android:textStyle="bold" />
+
+        <!-- Kỹ thuật đẩy nút xuống đáy: Dùng 1 View rỗng chiếm hết khoảng trống còn lại -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Nút Đăng nhập -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnLogin"
+            android:layout_width="295dp"
+            android:layout_height="60dp"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginBottom="60dp"
+            android:background="@drawable/bg_button_login"
+            android:elevation="8dp"
+            android:letterSpacing="0.05"
+            android:text="ĐĂNG NHẬP TÀI KHOẢN"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</FrameLayout>
