@@ -7,57 +7,51 @@
     android:padding="10dp"
     android:gravity="center_vertical"
     android:elevation="2dp"
-    android:layout_marginBottom="8dp">
-
-    <!-- Cột thông tin hàng hóa -->
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="0dp"
+    android:layout_marginBottom="8dp"
+    android:descendantFocusability="blocksDescendants">  <LinearLayout
+    android:orientation="vertical"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1">
+    <TextView
+        android:id="@+id/tvMaHangHoa"
+        android:text="Mã: HH01"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/txtTenHang"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1">
-        <TextView
-            android:id="@+id/tvMaHangHoa"
-            android:text="Mã: HH01"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/txtTenHang"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tên hàng hóa"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="#222" />
+        android:text="Tên hàng hóa"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#222" />
 
-        <TextView
-            android:id="@+id/txtGia"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Giá: 50.000đ"
-            android:textColor="#666"
-            android:textSize="14sp" />
+    <TextView
+        android:id="@+id/txtGia"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Giá: 50.000đ"
+        android:textColor="#666"
+        android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/txtSoLuong"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Số lượng: 10"
-            android:textColor="#666"
-            android:textSize="14sp" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/txtSoLuong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Số lượng: 10"
+        android:textColor="#666"
+        android:textSize="14sp" />
+</LinearLayout>
 
-    <!-- Nhóm nút bên phải -->
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="end">
 
-        <!-- Nút sửa -->
-
-        <!-- Nút xóa -->
         <ImageButton
             android:id="@+id/btnXoa"
             android:layout_width="36dp"
@@ -65,7 +59,8 @@
             android:backgroundTint="#AF6B7B"
             android:src="@drawable/ic_delete"
             android:padding="6dp"
-            android:contentDescription="Xóa" />
-    </LinearLayout>
+            android:contentDescription="Xóa"
+            android:focusable="false"
+            android:focusableInTouchMode="false" /> </LinearLayout>
 
 </LinearLayout>

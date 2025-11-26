@@ -14,7 +14,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SửaHàngHóa">
-
+        <activity
+            android:name=".Suahanghoa"
+            android:exported="false" />
         <!-- ============== 1. MÀN HÌNH CHẠY ĐẦU TIÊN (Welcome) ============== -->
         <!-- Đã sửa: Đặt Welcome làm Launcher -->
         <activity
@@ -23,35 +25,27 @@
             android:label="Màn Hình Chào Mừng">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- ============== 2. CÁC MÀN HÌNH KHÁC ============== -->
-
+        </activity> <!-- ============== 2. CÁC MÀN HÌNH KHÁC ============== -->
         <!-- Đã sửa: Thêm dấu ngoặc kép " bị thiếu ở cuối label -->
         <activity
             android:name=".Dangnhap"
             android:exported="false"
             android:label="Màn Hình Đăng Nhập"
-            android:parentActivityName=".Welcome" />
-
-        <!-- Đã sửa: Trangchu bỏ intent-filter đi để không chạy tranh với Welcome -->
+            android:parentActivityName=".Welcome" /> <!-- Đã sửa: Trangchu bỏ intent-filter đi để không chạy tranh với Welcome -->
         <activity
             android:name=".Trangchu"
             android:exported="false" />
-
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-
         <activity android:name=".themhanghoa" />
-
         <activity
             android:name=".ChiTietHangHoaActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
-
         <activity
             android:name=".SuaHangHoaActivity"
             android:exported="false"
@@ -61,14 +55,12 @@
             android:name=".DanhSachPhieuNhapActivity"
             android:exported="false"
             android:label="Danh Sách Phiếu Nhập" />
-
         <activity
             android:name=".ThemPhieuNhap"
             android:exported="false"
             android:label="Tạo Phiếu Nhập Mới"
             android:parentActivityName=".DanhSachPhieuNhapActivity" />
-        <activity android:name=".XemChiTietPhieu"/>
-
+        <activity android:name=".XemChiTietPhieu" />
     </application>
 
 </manifest>
