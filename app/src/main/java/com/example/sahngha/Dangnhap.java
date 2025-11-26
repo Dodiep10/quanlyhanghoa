@@ -4,84 +4,87 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 public class Dangnhap extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // 1. Gắn giao diện (Quan trọng nhất)
         setContentView(R.layout.activity_dangnhap);
 
-        // 2. Ánh xạ các View từ XML
         EditText edtUsername = findViewById(R.id.edtUsername);
         EditText edtPassword = findViewById(R.id.edtPassword);
         View btnLoginAction = findViewById(R.id.btnLoginAction);
 
-        // 3. Xử lý sự kiện nút Đăng nhập
-        if (btnLoginAction != null) {
-            btnLoginAction.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Lấy dữ liệu người dùng nhập (xóa khoảng trắng thừa bằng trim())
-                    String username = edtUsername.getText().toString().trim();
-                    String password = edtPassword.getText().toString().trim();
+        btnLoginAction.setOnClickListener(v -> {
+            String usernameInput = edtUsername.getText().toString().trim();
+            String passwordInput = edtPassword.getText().toString().trim();
 
-                    // Gọi hàm kiểm tra
-                    if (kiemTraTaiKhoan(username, password)) {
-                        // --- ĐĂNG NHẬP THÀNH CÔNG ---
-                        Toast.makeText(Dangnhap.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-
-                        // Chuyển sang màn hình Trang chủ
-                        Intent intent = new Intent(Dangnhap.this, Trangchu.class);
-                        startActivity(intent);
-
-                        // Đóng màn hình đăng nhập lại để không quay lại được khi ấn Back
-                        finish();
-                    } else {
-                        // --- ĐĂNG NHẬP THẤT BẠI ---
-                        Toast.makeText(Dangnhap.this, "Sai tên đăng nhập hoặc mật khẩu!", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
-
-        // 4. Xử lý nút Back (Nếu có ImageView nút back trong XML)
-
+            if (usernameInput.isEmpty() || passwordInput.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập đủ tên đăng nhập và mật khẩu!", Toast.LENGTH_SHORT).show();
+            } else {
+                dangNhapVoiFirebase(usernameInput, passwordInput);
+            }
+        });
     }
 
-    /**
-     * Hàm kiểm tra thông tin đăng nhập
-     * Danh sách hợp lệ: nhanvien1 -> nhanvien5
-     * Mật khẩu chung: 123456
-     */
-    private boolean kiemTraTaiKhoan(String user, String pass) {
-        // Kiểm tra mật khẩu trước (cho nhanh)
-        if (!pass.equals("123456")) {
-            return false;
-        }
+    private void dangNhapVoiFirebase(String user, String pass) {
+        Toast.makeText(this, "Đang kiểm tra thông tin...", Toast.LENGTH_SHORT).show();
 
-        // Danh sách các tài khoản nhân viên được phép
-        String[] danhSachNhanVien = {
-                "nhanvien1",
-                "nhanvien2",
-                "nhanvien3",
-                "nhanvien4",
-                "nhanvien5"
-        };
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://quanlyhanghoa-e4135-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        DatabaseReference myRef = database.getReference("TaiKhoan");
 
-        // Duyệt xem tên đăng nhập có nằm trong danh sách không
-        for (String nv : danhSachNhanVien) {
-            if (nv.equals(user)) {
-                return true; // Tìm thấy tài khoản hợp lệ
+        Query checkUser = myRef.orderByChild("username").equalTo(user);
+
+        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if (snapshot.exists()) {
+
+                    for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+
+                        TaiKhoan taiKhoan = userSnapshot.getValue(TaiKhoan.class);
+
+                        if (taiKhoan != null) {
+
+                            if (taiKhoan.getPassword().equals(pass)) {
+
+                                Toast.makeText(Dangnhap.this,
+                                        "Xin chào " + taiKhoan.getUsername(),
+                                        Toast.LENGTH_SHORT
+                                ).show();
+
+                                Intent intent = new Intent(Dangnhap.this, Trangchu.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+
+                            } else {
+                                Toast.makeText(Dangnhap.this, "Mật khẩu không đúng!", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                } else {
+                    Toast.makeText(Dangnhap.this, "Tài khoản không tồn tại!", Toast.LENGTH_SHORT).show();
+                }
             }
-        }
 
-        return false; // Không tìm thấy
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(Dangnhap.this, "Lỗi kết nối: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
