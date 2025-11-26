@@ -68,6 +68,18 @@
 
         <activity android:name=".XemChiTietPhieu" />
 
+        <activity
+            android:name=".ThongKeActivity"
+            android:exported="false"
+            android:label="Màn Hình Thống Kê"
+            android:parentActivityName=".Trangchu" />
+
+        <activity
+            android:name=".BaoCaoChiTietActivity"
+            android:exported="false"
+            android:label="Báo Cáo Chi Tiết"
+            android:parentActivityName=".ThongKeActivity" />
+
     </application>
 
 </manifest>
