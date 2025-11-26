@@ -57,6 +57,17 @@
             android:exported="false"
             android:label="Sửa Hàng Hóa"
             android:parentActivityName=".ChiTietHangHoaActivity" />
+        <activity
+            android:name=".DanhSachPhieuNhapActivity"
+            android:exported="false"
+            android:label="Danh Sách Phiếu Nhập" />
+
+        <activity
+            android:name=".ThemPhieuNhap"
+            android:exported="false"
+            android:label="Tạo Phiếu Nhập Mới"
+            android:parentActivityName=".DanhSachPhieuNhapActivity" />
+        <activity android:name=".XemChiTietPhieu"/>
 
     </application>
 

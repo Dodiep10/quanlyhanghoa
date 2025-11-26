@@ -124,7 +124,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Card 2: Quản lý hàng hoá (ĐÂY LÀ CHỖ ĐÃ SỬA LỖI) -->
+            <!-- Card 2: Quản lý hàng hoá -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cvQuanLyHangHoa"
                 android:layout_width="match_parent"
@@ -181,6 +181,7 @@
 
             <!-- Card 3: Quản lý phiếu nhập -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/cvQuanLyPhieuNhap"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_marginBottom="16dp"
@@ -215,7 +216,7 @@
                             android:layout_height="16dp"
                             android:layout_gravity="center"
                             android:src="@android:drawable/ic_media_play"
-                            app:tint="@color/white"/>
+                            app:tint="@color/white" />
                     </FrameLayout>
 
                     <TextView
@@ -295,7 +296,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="@Developed by ANDI"
+        android:text="\@Developed by ANDI"
         android:textColor="#CCFFFFFF"
         android:textSize="12sp"
         android:textStyle="bold|italic"
