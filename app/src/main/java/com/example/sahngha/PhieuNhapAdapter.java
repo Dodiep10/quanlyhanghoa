@@ -1,6 +1,7 @@
 package com.example.sahngha;
 
 import android.content.Context;
+import android.content.Intent; // Nhớ import Intent
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,6 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
     // 1. Interface để giao tiếp với Activity (CHỈ GIỮ LẠI DELETE)
     public interface OnItemActionListener {
         void onDeleteClick(String maPhieu, int position);
-        // ĐÃ BỎ: void onViewDetailClick(String maPhieu);
     }
 
     private OnItemActionListener mListener;
@@ -52,7 +52,6 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
             holder.tvNgayNhap = convertView.findViewById(R.id.tvNgayNhap);
             holder.tvNguoiTao = convertView.findViewById(R.id.tvNguoiTao);
             holder.tvTongTien = convertView.findViewById(R.id.tvTongTien);
-            // ĐÃ BỎ: holder.btnXemChiTiet = convertView.findViewById(R.id.btnXemChiTiet);
             holder.btnXoa = convertView.findViewById(R.id.btnXoa);
             convertView.setTag(holder);
         } else {
@@ -70,7 +69,7 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
             holder.tvNguoiTao.setText("(" + phieuNhap.getNguoiNhap() + ")");
             holder.tvTongTien.setText(tongTienStr);
 
-            // Xử lý sự kiện nút Xóa (Giữ nguyên)
+            // Xử lý sự kiện nút Xóa
             if (holder.btnXoa != null) {
                 holder.btnXoa.setOnClickListener(v -> {
                     if (mListener != null) {
@@ -79,7 +78,14 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
                 });
             }
 
-            // ĐÃ BỎ: Xử lý sự kiện nút Xem Chi Tiết
+            // --- ĐÂY LÀ PHẦN THÊM VÀO ---
+            // Bắt sự kiện click vào toàn bộ dòng (convertView) để chuyển màn hình
+            convertView.setOnClickListener(v -> {
+                Intent intent = new Intent(mContext, XemChiTietPhieu.class);
+                intent.putExtra("MA_PHIEU", phieuNhap.getMaPhieu());
+                mContext.startActivity(intent);
+            });
+            // -----------------------------
         }
 
         return convertView;
@@ -91,7 +97,6 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
         TextView tvNgayNhap;
         TextView tvNguoiTao;
         TextView tvTongTien;
-        // ĐÃ BỎ: ImageButton btnXemChiTiet;
         ImageButton btnXoa;
     }
 }

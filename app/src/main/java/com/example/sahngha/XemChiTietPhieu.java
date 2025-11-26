@@ -2,14 +2,15 @@ package com.example.sahngha;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar; // Import Toolbar
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,113 +27,130 @@ import java.util.Locale;
 
 public class XemChiTietPhieu extends AppCompatActivity {
 
-    // Khai báo Views
+    // Khai báo các biến View
     private TextView tvMaPhieu, tvNguoiNhap, tvThoiGianNhap, tvTongTienChiTiet;
     private RecyclerView rvChiTietHangHoa;
-    private Toolbar toolbarChiTietPhieu; // Khai báo Toolbar
+    private Toolbar toolbar;
 
+    // Biến cho RecyclerView
     private ChiTietPhieuNhapAdapter adapter;
     private List<ChiTietNhapHang> listChiTiet;
 
-    private FirebaseDatabase database;
+    // Biến Firebase và dữ liệu
+    private String maPhieuCanXem;
     private DatabaseReference phieuNhapRef;
-
-    // Định dạng tiền tệ
-    private DecimalFormat df = new DecimalFormat("#,###");
-    // Định dạng thời gian
-    private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
-
-    private String maPhieuKey; // Biến lưu Mã Phiếu
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.xemchitietphieu); // Layout Chi tiết Phiếu Nhập
+        // Quan trọng: Phải đúng tên file layout xml của bạn
+        setContentView(R.layout.xemchitietphieu);
 
-        // 1. Ánh xạ View và Toolbar
-        anhXaViews();
+        // 1. Ánh xạ các View từ layout
+        initViews();
 
-        // 2. Cài đặt Toolbar (Giống như ChiTietHangHoaActivity)
-        setSupportActionBar(toolbarChiTietPhieu);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Chi Tiết Phiếu Nhập");
-        }
-        // Sự kiện cho nút back (mũi tên) -> finish()
-        toolbarChiTietPhieu.setNavigationOnClickListener(v -> finish());
+        // 2. Thiết lập Toolbar (Nút quay lại)
+        setupToolbar();
 
-        // 3. Lấy Mã Phiếu từ Intent
-        maPhieuKey = getIntent().getStringExtra("MA_PHIEU");
-
-        if (maPhieuKey == null || maPhieuKey.isEmpty()) {
-            Toast.makeText(this, "Lỗi: Không tìm thấy Mã Phiếu Nhập", Toast.LENGTH_SHORT).show();
-            finish();
+        // 3. Lấy Mã Phiếu được gửi từ màn hình danh sách
+        if (getIntent().hasExtra("MA_PHIEU")) {
+            maPhieuCanXem = getIntent().getStringExtra("MA_PHIEU");
+        } else {
+            Toast.makeText(this, "Lỗi: Không tìm thấy mã phiếu!", Toast.LENGTH_SHORT).show();
+            finish(); // Đóng màn hình nếu không có mã
             return;
         }
 
-        // 4. Khởi tạo Firebase
-        database = FirebaseDatabase.getInstance("https://quanlyhanghoa-e4135-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        // 4. Cấu hình RecyclerView để hiển thị danh sách hàng hóa
+        setupRecyclerView();
+
+        // 5. Khởi tạo Firebase
+        // Lưu ý: URL database phải khớp với cấu hình trong ThemPhieuNhap
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://quanlyhanghoa-e4135-default-rtdb.asia-southeast1.firebasedatabase.app/");
         phieuNhapRef = database.getReference("phieunhap");
 
-        // 5. Thiết lập RecyclerView
-        listChiTiet = new ArrayList<>();
-        adapter = new ChiTietPhieuNhapAdapter(listChiTiet);
-        rvChiTietHangHoa.setLayoutManager(new LinearLayoutManager(this));
-        rvChiTietHangHoa.setAdapter(adapter);
-
-        // 6. Tải dữ liệu
-        layChiTietPhieuNhap(maPhieuKey);
+        // 6. Tải dữ liệu từ Firebase
+        loadThongTinPhieu();
     }
 
-    private void anhXaViews() {
+    private void initViews() {
+        toolbar = findViewById(R.id.toolbarChiTietPhieu);
         tvMaPhieu = findViewById(R.id.tvMaPhieu);
         tvNguoiNhap = findViewById(R.id.tvNguoiNhap);
         tvThoiGianNhap = findViewById(R.id.tvThoiGianNhap);
         tvTongTienChiTiet = findViewById(R.id.tvTongTienChiTiet);
         rvChiTietHangHoa = findViewById(R.id.rvChiTietHangHoa);
-        toolbarChiTietPhieu = findViewById(R.id.toolbarChiTietPhieu); // Cần đảm bảo có ID này trong layout
     }
 
-    private void layChiTietPhieuNhap(String maPhieu) {
-        // Hiển thị Mã phiếu ngay lập tức
-        tvMaPhieu.setText("Mã Phiếu: " + maPhieu);
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Chi Tiết Phiếu Nhập");
+        }
+        // Xử lý sự kiện khi bấm nút mũi tên quay lại trên toolbar
+        toolbar.setNavigationOnClickListener(v -> finish());
+    }
 
-        phieuNhapRef.child(maPhieu).addListenerForSingleValueEvent(new ValueEventListener() {
+    private void setupRecyclerView() {
+        listChiTiet = new ArrayList<>();
+        // Tái sử dụng Adapter mà bạn đã dùng ở màn hình Thêm Phiếu Nhập
+        // Vì cấu trúc hiển thị 1 dòng chi tiết hàng hóa là giống nhau
+        adapter = new ChiTietPhieuNhapAdapter(listChiTiet);
+
+        rvChiTietHangHoa.setLayoutManager(new LinearLayoutManager(this));
+        rvChiTietHangHoa.setAdapter(adapter);
+    }
+
+    private void loadThongTinPhieu() {
+        // Truy vấn trực tiếp vào node con có key là maPhieuCanXem
+        phieuNhapRef.child(maPhieuCanXem).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
+                    // Map dữ liệu từ Firebase vào object PhieuNhap
                     PhieuNhap phieuNhap = snapshot.getValue(PhieuNhap.class);
+
                     if (phieuNhap != null) {
-                        hienThiDuLieu(phieuNhap);
-                    } else {
-                        Toast.makeText(XemChiTietPhieu.this, "Lỗi đọc dữ liệu phiếu nhập.", Toast.LENGTH_LONG).show();
+                        hienThiThongTin(phieuNhap);
                     }
                 } else {
-                    Toast.makeText(XemChiTietPhieu.this, "Không tìm thấy phiếu nhập có mã " + maPhieu, Toast.LENGTH_LONG).show();
+                    Toast.makeText(XemChiTietPhieu.this, "Phiếu nhập không tồn tại hoặc đã bị xóa.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Firebase", "Lỗi tải chi tiết phiếu nhập: " + error.getMessage());
-                Toast.makeText(XemChiTietPhieu.this, "Lỗi kết nối Firebase.", Toast.LENGTH_LONG).show();
+                Toast.makeText(XemChiTietPhieu.this, "Lỗi tải dữ liệu: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("FirebaseError", "Lỗi load chi tiết phiếu", error.toException());
             }
         });
     }
 
-    private void hienThiDuLieu(PhieuNhap phieuNhap) {
-        // Hiển thị thông tin chung
+    private void hienThiThongTin(PhieuNhap phieuNhap) {
+        // --- 1. Hiển thị thông tin chung ---
+        tvMaPhieu.setText("Mã Phiếu: " + phieuNhap.getMaPhieu());
         tvNguoiNhap.setText("Người Nhập: " + phieuNhap.getNguoiNhap());
-        String thoiGian = sdf.format(new Date(phieuNhap.getThoiGianNhap()));
-        tvThoiGianNhap.setText("Thời Gian: " + thoiGian);
+
+        // Format thời gian (từ mili-giây sang ngày/tháng/năm giờ:phút)
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        String strDate = sdf.format(new Date(phieuNhap.getThoiGianNhap()));
+        tvThoiGianNhap.setText("Thời Gian: " + strDate);
+
+        // Format tổng tiền
+        DecimalFormat df = new DecimalFormat("#,###");
         tvTongTienChiTiet.setText("Tổng Tiền: " + df.format(phieuNhap.getTongTien()) + "đ");
 
-        // Hiển thị chi tiết hàng hóa
+        // --- 2. Hiển thị danh sách chi tiết hàng hóa ---
         listChiTiet.clear();
+
+        // Trong ThemPhieuNhap, bạn lưu chiTiet dưới dạng Map<String, ChiTietNhapHang>
+        // Cần chuyển đổi Map này thành List để đưa vào RecyclerView
         if (phieuNhap.getChiTiet() != null) {
-            // Chuyển Map ChiTietNhapHang về List để Adapter hiển thị
             listChiTiet.addAll(phieuNhap.getChiTiet().values());
         }
+
+        // Cập nhật giao diện list
         adapter.notifyDataSetChanged();
     }
 }
