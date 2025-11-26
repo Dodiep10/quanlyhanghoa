@@ -1,19 +1,20 @@
 package com.example.sahngha;
 
-class ChiTietNhapHang {
-    private HangHoa hangHoa;       // Liên kết trực tiếp với hàng hóa
-    private int soLuongNhap;
+public class ChiTietNhapHang {
+    private HangHoa hangHoa;
+    private int soLuong;
 
-    ChiTietNhapHang() {
+    // Constructor rỗng (bắt buộc cho Firebase)
+    public ChiTietNhapHang() {
     }
 
-    // Constructor mới: chỉ cần truyền vào đối tượng HangHoa và số lượng
-    ChiTietNhapHang(HangHoa hangHoa, int soLuongNhap) {
+    public ChiTietNhapHang(HangHoa hangHoa, int soLuong) {
         this.hangHoa = hangHoa;
-        this.soLuongNhap = soLuongNhap;
+        this.soLuong = soLuong;
     }
 
-    // --- GETTERS & SETTERS ---
+    // --- CÁC HÀM GETTER VÀ SETTER (Cần thiết để sửa lỗi) ---
+
     public HangHoa getHangHoa() {
         return hangHoa;
     }
@@ -22,30 +23,21 @@ class ChiTietNhapHang {
         this.hangHoa = hangHoa;
     }
 
-    public int getSoLuongNhap() {
-        return soLuongNhap;
+    public int getSoLuong() {
+        return soLuong;
     }
 
-    public void setSoLuongNhap(int soLuongNhap) {
-        this.soLuongNhap = soLuongNhap;
+    public void setSoLuong(int soLuong) {
+        this.soLuong = soLuong;
     }
 
-    // --- LẤY GIÁ TRỰC TIẾP TỪ HANGHOA ---
-    public double getGiaNhap() {
-        return hangHoa.getGia();   // LẤY GIÁ TỪ CLASS HANGHOA
-    }
-
-    // --- THÀNH TIỀN ---
-    public double getThanhTien() {
-        return soLuongNhap * getGiaNhap();
-    }
-
-    // --- LẤY MÃ VÀ TÊN CHO DỄ DÙNG ---
+    // Helper: Lấy mã hàng hóa nhanh
     public String getMaHangHoa() {
-        return hangHoa.getMaHangHoa();
+        return hangHoa != null ? hangHoa.getMaHangHoa() : "";
     }
 
-    public String getTenHangHoa() {
-        return hangHoa.getTen();
+    // Helper: Tính thành tiền
+    public double getThanhTien() {
+        return hangHoa != null ? hangHoa.getGia() * soLuong : 0;
     }
 }

@@ -19,8 +19,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.OnFailureListener;
+// ... existing imports ...
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -68,7 +67,6 @@ public class ThemPhieuNhap extends AppCompatActivity {
 
         layDuLieuHangHoa();
 
-        // --- THIẾT LẬP CLICK ĐỂ MỞ DIALOG CHỌN HÀNG HÓA ---
         tvHangHoaDaChon.setOnClickListener(v -> {
             hienThiDialogChonHangHoa();
         });
@@ -76,10 +74,24 @@ public class ThemPhieuNhap extends AppCompatActivity {
         // --- RecyclerView ---
         listChiTiet = new ArrayList<>();
         adapter = new ChiTietPhieuNhapAdapter(listChiTiet);
+
+        // --- QUAN TRỌNG: CÀI ĐẶT SỰ KIỆN XÓA ---
+        adapter.setOnDeleteListener(position -> {
+            // 1. Xóa phần tử khỏi danh sách
+            listChiTiet.remove(position);
+            // 2. Cập nhật giao diện RecyclerView
+            adapter.notifyItemRemoved(position);
+            adapter.notifyItemRangeChanged(position, listChiTiet.size());
+            // 3. Tính lại tổng tiền
+            updateTongTien();
+            Toast.makeText(ThemPhieuNhap.this, "Đã xóa hàng hóa khỏi phiếu", Toast.LENGTH_SHORT).show();
+        });
+        // -----------------------------------------
+
         rvChiTietNhap.setLayoutManager(new LinearLayoutManager(this));
         rvChiTietNhap.setAdapter(adapter);
 
-        // --- Logic Thêm hàng vào chi tiết (Bấm thêm hàng) ---
+        // --- Logic Thêm hàng vào chi tiết ---
         btnThemHang.setOnClickListener(v -> {
             if(selectedHangHoa == null){
                 tvHangHoaDaChon.setError("Vui lòng chọn hàng hóa!");
@@ -95,20 +107,32 @@ public class ThemPhieuNhap extends AppCompatActivity {
 
             int soLuong = Integer.parseInt(soLuongStr);
 
-            // THÊM VÀO DANH SÁCH CHI TIẾT
-            ChiTietNhapHang ct = new ChiTietNhapHang(selectedHangHoa, soLuong);
-            listChiTiet.add(ct);
-            adapter.notifyDataSetChanged();
+            // Kiểm tra xem hàng hóa đã có trong list chưa để cộng dồn (Tuỳ chọn nâng cao)
+            boolean daCo = false;
+            for(ChiTietNhapHang existing : listChiTiet) {
+                if(existing.getMaHangHoa().equals(selectedHangHoa.getMaHangHoa())) {
+                    existing.setSoLuong(existing.getSoLuong() + soLuong);
+                    daCo = true;
+                    break;
+                }
+            }
 
+            if(!daCo) {
+                ChiTietNhapHang ct = new ChiTietNhapHang(selectedHangHoa, soLuong);
+                listChiTiet.add(ct);
+            }
+
+            adapter.notifyDataSetChanged();
             updateTongTien();
 
-            // RESET TRẠNG THÁI SAU KHI THÊM THÀNH CÔNG
             edtSoLuongNhap.setText("");
+            // Không nhất thiết phải null selectedHangHoa nếu muốn nhập tiếp, nhưng reset cho an toàn
             selectedHangHoa = null;
             tvHangHoaDaChon.setText("--- Bấm vào đây để chọn hàng hóa ---");
+            tvHangHoaDaChon.setError(null);
         });
 
-        // --- Logic Lưu phiếu nhập (FIX LỖI TRÙNG MÃ) ---
+        // ... existing code (Logic Lưu phiếu nhập) ...
         btnLuuPhieuNhap.setOnClickListener(v -> {
             if(listChiTiet.isEmpty()){
                 Toast.makeText(this,"Danh sách chi tiết trống!",Toast.LENGTH_SHORT).show();
@@ -118,59 +142,47 @@ public class ThemPhieuNhap extends AppCompatActivity {
             String nguoiNhap = edtNguoiNhap.getText().toString().trim();
             if(nguoiNhap.isEmpty()) nguoiNhap = "Admin";
 
-            // === TẠO MÃ PHIẾU GẦN NHƯ DUY NHẤT (PN-XXXXXX) ===
-            // 1. Tạo một Firebase Push Key duy nhất
             String firebaseKey = phieuNhapRef.push().getKey();
-
-            // 2. Cắt 6 ký tự ngẫu nhiên đầu tiên để tăng tính duy nhất
-            // Nếu firebaseKey ngắn hơn 6 ký tự, dùng toàn bộ key
             String randomPart = (firebaseKey.length() >= 6) ? firebaseKey.substring(0, 6) : firebaseKey;
-
             String newPhieuNhapId = "PN-" + randomPart.toUpperCase();
-            // =========================================================
 
             double tongTien = 0;
             Map<String, ChiTietNhapHang> chiTietMap = new HashMap<>();
 
-            // Tính tổng tiền và chuẩn bị map chi tiết
             for(ChiTietNhapHang ct : listChiTiet){
                 chiTietMap.put(ct.getMaHangHoa(), ct);
                 tongTien += ct.getThanhTien();
             }
 
             PhieuNhap phieuNhap = new PhieuNhap(
-                    newPhieuNhapId, // Sử dụng ID ngắn đã tăng tính duy nhất
+                    newPhieuNhapId,
                     System.currentTimeMillis(),
                     nguoiNhap,
                     tongTien,
                     chiTietMap
             );
 
-            // BƯỚC QUAN TRỌNG: ĐẨY DỮ LIỆU LÊN FIREBASE (Sử dụng newPhieuNhapId làm key)
             phieuNhapRef.child(newPhieuNhapId).setValue(phieuNhap)
                     .addOnSuccessListener(aVoid -> {
-                        // THÀNH CÔNG
                         DecimalFormat df = new DecimalFormat("#,###");
                         Toast.makeText(ThemPhieuNhap.this,
                                 "Đã lưu phiếu " + newPhieuNhapId + ", tổng tiền: "+df.format(phieuNhap.getTongTien())+"đ",
                                 Toast.LENGTH_LONG).show();
 
-                        // RESET GIAO DIỆN
                         listChiTiet.clear();
                         adapter.notifyDataSetChanged();
                         updateTongTien();
                         edtNguoiNhap.setText("Admin");
                     })
                     .addOnFailureListener(e -> {
-                        // THẤT BẠI
-                        Toast.makeText(ThemPhieuNhap.this, "Lưu phiếu nhập thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(ThemPhieuNhap.this, "Lỗi lưu phiếu: " + e.getMessage(), Toast.LENGTH_LONG).show();
                         Log.e("FirebaseSave", "Lỗi lưu phiếu", e);
                     });
         });
     }
 
-    // --- HÀM TẢI DỮ LIỆU TỪ FIREBASE (GIỮ NGUYÊN) ---
     private void layDuLieuHangHoa() {
+        // ... existing code ...
         hangHoaRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -194,8 +206,8 @@ public class ThemPhieuNhap extends AppCompatActivity {
         });
     }
 
-    // --- HÀM HIỂN THỊ DIALOG CHỌN HÀNG HÓA (GIỮ NGUYÊN) ---
     private void hienThiDialogChonHangHoa() {
+        // ... existing code ...
         if (listHangHoaFirebase.isEmpty()) {
             Toast.makeText(this, "Chưa có hàng hóa nào được tải.", Toast.LENGTH_SHORT).show();
             return;
@@ -223,7 +235,6 @@ public class ThemPhieuNhap extends AppCompatActivity {
         builder.show();
     }
 
-    // --- Cập nhật tổng tiền (GIỮ NGUYÊN) ---
     private void updateTongTien(){
         double tong = 0;
         for(ChiTietNhapHang ct : listChiTiet) tong += ct.getThanhTien();

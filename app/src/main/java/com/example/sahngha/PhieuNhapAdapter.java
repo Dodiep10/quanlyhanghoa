@@ -1,7 +1,7 @@
 package com.example.sahngha;
 
 import android.content.Context;
-import android.content.Intent; // Nhớ import Intent
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +18,7 @@ import java.util.Locale;
 
 public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
 
-    // 1. Interface để giao tiếp với Activity (CHỈ GIỮ LẠI DELETE)
+    // Interface để giao tiếp với Activity khi bấm nút Xóa
     public interface OnItemActionListener {
         void onDeleteClick(String maPhieu, int position);
     }
@@ -27,12 +27,14 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
     private Context mContext;
     private int mResource;
 
+    // Constructor chuẩn cho ArrayAdapter
     public PhieuNhapAdapter(@NonNull Context context, int resource, @NonNull List<PhieuNhap> objects) {
         super(context, resource, objects);
         this.mContext = context;
         this.mResource = resource;
     }
 
+    // Hàm set sự kiện xóa
     public void setOnItemActionListener(OnItemActionListener listener) {
         this.mListener = listener;
     }
@@ -40,36 +42,44 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        PhieuNhap phieuNhap = getItem(position);
         ViewHolder holder;
 
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
+            // Lưu ý: Đảm bảo bạn có file layout item_phieu_nhap.xml (hoặc tên tương tự)
             convertView = inflater.inflate(mResource, parent, false);
 
             holder = new ViewHolder();
+            // Ánh xạ các view trong item của danh sách PHIẾU
             holder.tvMaPhieu = convertView.findViewById(R.id.tvMaPhieu);
             holder.tvNgayNhap = convertView.findViewById(R.id.tvNgayNhap);
             holder.tvNguoiTao = convertView.findViewById(R.id.tvNguoiTao);
             holder.tvTongTien = convertView.findViewById(R.id.tvTongTien);
             holder.btnXoa = convertView.findViewById(R.id.btnXoa);
+
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        // Đổ dữ liệu vào View
+        // Lấy dữ liệu phiếu nhập tại vị trí position
+        PhieuNhap phieuNhap = getItem(position);
+
         if (phieuNhap != null) {
+            // 1. Format ngày tháng
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             String ngayNhapStr = sdf.format(new Date(phieuNhap.getThoiGianNhap()));
+
+            // 2. Format tiền tệ
             String tongTienStr = String.format(Locale.getDefault(), "Tổng tiền: %,.0fđ", phieuNhap.getTongTien());
 
+            // 3. Hiển thị lên giao diện
             holder.tvMaPhieu.setText("Mã Phiếu: " + phieuNhap.getMaPhieu());
             holder.tvNgayNhap.setText(ngayNhapStr);
             holder.tvNguoiTao.setText("(" + phieuNhap.getNguoiNhap() + ")");
             holder.tvTongTien.setText(tongTienStr);
 
-            // Xử lý sự kiện nút Xóa
+            // 4. Xử lý sự kiện nút Xóa
             if (holder.btnXoa != null) {
                 holder.btnXoa.setOnClickListener(v -> {
                     if (mListener != null) {
@@ -78,20 +88,18 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
                 });
             }
 
-            // --- ĐÂY LÀ PHẦN THÊM VÀO ---
-            // Bắt sự kiện click vào toàn bộ dòng (convertView) để chuyển màn hình
+            // 5. QUAN TRỌNG: Bắt sự kiện click vào dòng để xem chi tiết
             convertView.setOnClickListener(v -> {
                 Intent intent = new Intent(mContext, XemChiTietPhieu.class);
                 intent.putExtra("MA_PHIEU", phieuNhap.getMaPhieu());
                 mContext.startActivity(intent);
             });
-            // -----------------------------
         }
 
         return convertView;
     }
 
-    // Class ViewHolder
+    // ViewHolder lưu trữ các view để tối ưu hiệu năng
     static class ViewHolder {
         TextView tvMaPhieu;
         TextView tvNgayNhap;
