@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -10,7 +12,8 @@
     android:layout_marginBottom="8dp"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground"> <LinearLayout
+    android:foreground="?android:attr/selectableItemBackground"
+    android:descendantFocusability="blocksDescendants"> <LinearLayout
     android:orientation="vertical"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
@@ -18,7 +21,7 @@
 
     <TextView
         android:id="@+id/tvMaPhieu"
-        android:text="Mã Phiếu: PN-20251126"
+        tools:text="Mã Phiếu: PN-20251126"
         android:textStyle="bold"
         android:textSize="16sp"
         android:textColor="#5E13E6"
@@ -34,7 +37,7 @@
             android:id="@+id/tvNgayNhap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="26/11/2025"
+            tools:text="26/11/2025"
             android:textColor="#666"
             android:textSize="14sp"
             android:layout_marginEnd="8dp"/>
@@ -42,7 +45,7 @@
             android:id="@+id/tvNguoiTao"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="(Admin)"
+            tools:text="(Admin)"
             android:textColor="#666"
             android:textSize="14sp" />
     </LinearLayout>
@@ -52,7 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Tổng tiền: 5.500.000đ"
+        tools:text="Tổng tiền: 5.500.000đ"
         android:textStyle="bold"
         android:textColor="#4CAF50"
         android:textSize="15sp" />
@@ -67,12 +70,16 @@
 
         <ImageButton
             android:id="@+id/btnXoa"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:backgroundTint="#AF6B7B"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_delete"
-            android:padding="6dp"
-            android:contentDescription="Xóa" />
+            app:tint="#AF6B7B"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="Xóa"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
 
     </LinearLayout>
 

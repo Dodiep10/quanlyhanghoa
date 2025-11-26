@@ -8,9 +8,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter; // Cần thiết cho Spinner
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner; // Cần thiết cho Spinner
 import android.widget.Toast;
 
 import com.cloudinary.android.MediaManager;
@@ -25,7 +27,10 @@ import java.util.Map;
 public class themhanghoa extends AppCompatActivity {
 
     // Khai báo biến
-    EditText edtMaHangHoa, edtTenHangHoa, edtLoaiHangHoa, edtGia, edtSoLuong, edtTenNCC, edtEmailNCC, edtSdtNCC;
+    // Lưu ý: Đã xóa edtLoaiHangHoa, thay bằng spnLoaiHangHoa
+    EditText edtMaHangHoa, edtTenHangHoa, edtGia, edtSoLuong, edtTenNCC, edtEmailNCC, edtSdtNCC;
+    Spinner spnLoaiHangHoa;
+
     Button btnXacNhan, btnHuy, btnChonAnh;
     ImageView imgHangHoa;
     DatabaseReference hangHoaRef;
@@ -37,7 +42,7 @@ public class themhanghoa extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_themhanghoa);
 
-        // ======== KHỞI TẠO CLOUDINARY (BẮT BUỘC) ========
+        // ======== KHỞI TẠO CLOUDINARY (GIỮ NGUYÊN) ========
         try {
             if (MediaManager.get() == null) {
                 Map config = new HashMap();
@@ -54,7 +59,20 @@ public class themhanghoa extends AppCompatActivity {
         // ======== ÁNH XẠ VIEW ========
         edtMaHangHoa = findViewById(R.id.edtMaHangHoa);
         edtTenHangHoa = findViewById(R.id.edtTenHangHoa);
-        edtLoaiHangHoa = findViewById(R.id.edtLoaiHangHoa);
+
+        // --- THAY ĐỔI: CẤU HÌNH SPINNER ---
+        spnLoaiHangHoa = findViewById(R.id.spnLoaiHangHoa);
+
+        // 1. Tạo danh sách các loại hàng cố định
+        String[] loaiHangItems = new String[]{"Nước ngọt", "Bánh", "Kẹo", "Đồ ăn vặt"};
+
+        // 2. Tạo Adapter để đổ dữ liệu vào Spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, loaiHangItems);
+
+        // 3. Gán Adapter cho Spinner
+        spnLoaiHangHoa.setAdapter(adapter);
+        // ----------------------------------
+
         edtGia = findViewById(R.id.edtGia);
         edtSoLuong = findViewById(R.id.edtSoLuong);
         edtTenNCC = findViewById(R.id.edtTenNCC);
@@ -72,21 +90,18 @@ public class themhanghoa extends AppCompatActivity {
         );
         hangHoaRef = database.getReference("hanghoa");
 
-
         // ======== SỰ KIỆN NÚT ========
         btnChonAnh.setOnClickListener(v -> openGallery());
         btnXacNhan.setOnClickListener(v -> themHangHoa());
         btnHuy.setOnClickListener(v -> finish());
     }
 
-    // ======== MỞ THƯ VIỆN CHỌN ẢNH ========
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
-    // ======== NHẬN KẾT QUẢ ẢNH ========
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -100,7 +115,11 @@ public class themhanghoa extends AppCompatActivity {
     private void themHangHoa() {
         String ma = edtMaHangHoa.getText().toString().trim();
         String ten = edtTenHangHoa.getText().toString().trim();
-        String loai = edtLoaiHangHoa.getText().toString().trim();
+
+        // --- THAY ĐỔI: LẤY GIÁ TRỊ TỪ SPINNER ---
+        String loai = spnLoaiHangHoa.getSelectedItem().toString();
+        // ----------------------------------------
+
         String giaStr = edtGia.getText().toString().trim();
         String soLuongStr = edtSoLuong.getText().toString().trim();
         String tenNCC = edtTenNCC.getText().toString().trim();
@@ -115,7 +134,7 @@ public class themhanghoa extends AppCompatActivity {
         double gia = Double.parseDouble(giaStr);
         int soLuong = Integer.parseInt(soLuongStr);
 
-        // ======== KIỂM TRA MÃ TRÙNG ========
+        // ======== KIỂM TRA MÃ TRÙNG & LƯU ========
         hangHoaRef.child(ma).get().addOnSuccessListener(snapshot -> {
             if (snapshot.exists()) {
                 Toast.makeText(this, "Mã hàng hóa đã tồn tại!", Toast.LENGTH_SHORT).show();
@@ -132,7 +151,7 @@ public class themhanghoa extends AppCompatActivity {
         );
     }
 
-    // ======== TẢI ẢNH LÊN CLOUDINARY ========
+    // ======== UPLOAD ẢNH ========
     private void uploadImageToCloudinary(String ma, String ten, String loai, double gia, int soLuong,
                                          String tenNCC, String email, String sdt) {
 
@@ -153,6 +172,7 @@ public class themhanghoa extends AppCompatActivity {
                     public void onSuccess(String requestId, java.util.Map resultData) {
                         String imageUrl = (String) resultData.get("secure_url");
                         Log.d("Cloudinary", "Tải ảnh thành công: " + imageUrl);
+                        // Gọi hàm lưu vào DB sau khi có link ảnh
                         themhanghoavaodb(ma, ten, loai, gia, soLuong, imageUrl, tenNCC, email, sdt);
                     }
 
@@ -169,7 +189,7 @@ public class themhanghoa extends AppCompatActivity {
                 .dispatch();
     }
 
-    // ======== LƯU DỮ LIỆU VÀO FIREBASE ========
+    // ======== LƯU VÀO FIREBASE ========
     private void themhanghoavaodb(String ma, String ten, String loai, double gia, int soLuong,
                                   String imageUrl, String tenNCC, String email, String sdt) {
 

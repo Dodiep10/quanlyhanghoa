@@ -26,8 +26,8 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-// ĐÃ GỠ BỎ: implements PhieuNhapAdapter.OnItemActionListener (để đơn giản hóa)
-public class DanhSachPhieuNhapActivity extends AppCompatActivity {
+// Implement Interface từ Adapter
+public class DanhSachPhieuNhapActivity extends AppCompatActivity implements PhieuNhapAdapter.OnItemActionListener {
 
     ListView lvPhieuNhap;
     PhieuNhapAdapter adapter;
@@ -41,61 +41,71 @@ public class DanhSachPhieuNhapActivity extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference phieuNhapRef;
 
-    // === HÀM HỖ TRỢ ĐỊNH DẠNG NGÀY THÁNG ===
     private String getFormattedDate(long timestamp) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         return sdf.format(new Date(timestamp));
     }
-    // =======================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.danhsachphieunhap);
 
-        // === ÁNH XẠ VIEWs ===
+        // Ánh xạ
         txtTongPn = findViewById(R.id.txtTongPhieu);
         lvPhieuNhap = findViewById(R.id.lvPhieuNhap);
         btnThemPn = findViewById(R.id.btnThemPhieu);
         edtTimPn = findViewById(R.id.edt_timphieu);
 
-        // === KHỞI TẠO FIREBASE ===
+        // Firebase
         database = FirebaseDatabase.getInstance("https://quanlyhanghoa-e4135-default-rtdb.asia-southeast1.firebasedatabase.app/");
         phieuNhapRef = database.getReference("phieunhap");
 
         dsPhieuNhap = new ArrayList<>();
         originalList = new ArrayList<>();
 
-        // Khởi tạo Adapter
         adapter = new PhieuNhapAdapter(this, R.layout.item_phieunhap, dsPhieuNhap);
-        // BỎ: adapter.setOnItemActionListener(this);
+
+        // Gán listener để nhận sự kiện xóa
+        adapter.setOnItemActionListener(this);
 
         lvPhieuNhap.setAdapter(adapter);
 
-        layDuLieuFirebase(); // <<< KHÔNG CÒN BÁO LỖI VÌ HÀM NÀY NẰM TRONG CLASS >>>
+        layDuLieuFirebase();
 
-        // === SỰ KIỆN CLICK ===
+        // Sự kiện click thêm phiếu
         btnThemPn.setOnClickListener(v -> {
             Intent intent = new Intent(DanhSachPhieuNhapActivity.this, ThemPhieuNhap.class);
             startActivity(intent);
         });
 
-        // Click vào item trong ListView (Xem chi tiết)
-        lvPhieuNhap.setOnItemClickListener((parent, view, position, id) -> {
-            PhieuNhap selectedPn = dsPhieuNhap.get(position);
-            Intent intent = new Intent(DanhSachPhieuNhapActivity.this, XemChiTietPhieu.class);
-            intent.putExtra("MA_PHIEU", selectedPn.getMaPhieu());
-            startActivity(intent);
-        });
-
-        setupSearchListener(); // <<< KHÔNG CÒN BÁO LỖI VÌ HÀM NÀY NẰM TRONG CLASS >>>
+        // Sự kiện tìm kiếm
+        setupSearchListener();
     }
 
-    // ===================================================================================
-    // CÁC HÀM LOGIC PHẢI BẮT ĐẦU TỪ ĐÂY (NGOÀI HÀM ONCREATE)
-    // ===================================================================================
+    // === ĐÃ SỬA LẠI HÀM NÀY CHO KHỚP VỚI ADAPTER ===
+    @Override
+    public void onDeleteClick(String maPhieu, int position) {
+        // Khi bấm nút xóa ở Adapter, nó sẽ chạy vào đây
+        thucHienXoaPhieu(maPhieu);
+    }
+    // ===============================================
 
-    // --- HÀM LỌC DỮ LIỆU (Giữ nguyên logic lọc 3 trường) ---
+    // --- HÀM XÓA ---
+    public void thucHienXoaPhieu(String maPhieu) {
+        new AlertDialog.Builder(this)
+                .setTitle("Xác nhận xóa")
+                .setMessage("Bạn có chắc chắn muốn xóa Phiếu Nhập " + maPhieu + " không?")
+                .setPositiveButton("Xóa", (dialog, which) -> {
+                    phieuNhapRef.child(maPhieu).removeValue()
+                            .addOnSuccessListener(aVoid -> Toast.makeText(this, "Xóa thành công!", Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(e -> Log.e("Firebase", "Lỗi xóa PN", e));
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    // --- CÁC HÀM KHÁC GIỮ NGUYÊN ---
     private void filterList(String query) {
         String lowerCaseQuery = query.toLowerCase().trim();
         dsPhieuNhap.clear();
@@ -105,57 +115,36 @@ public class DanhSachPhieuNhapActivity extends AppCompatActivity {
         } else {
             for (PhieuNhap item : originalList) {
                 boolean isMatch = false;
-
-                // 1. Kiểm tra Mã phiếu (maPhieu)
-                if (item.getMaPhieu() != null && item.getMaPhieu().toLowerCase().contains(lowerCaseQuery)) {
-                    isMatch = true;
-                }
-
-                // 2. Kiểm tra Người nhập (nguoiNhap)
-                if (!isMatch && item.getNguoiNhap() != null && item.getNguoiNhap().toLowerCase().contains(lowerCaseQuery)) {
-                    isMatch = true;
-                }
-
-                // 3. KIỂM TRA NGÀY NHẬP
+                if (item.getMaPhieu() != null && item.getMaPhieu().toLowerCase().contains(lowerCaseQuery)) isMatch = true;
+                if (!isMatch && item.getNguoiNhap() != null && item.getNguoiNhap().toLowerCase().contains(lowerCaseQuery)) isMatch = true;
                 String ngayNhapStr = getFormattedDate(item.getThoiGianNhap());
+                if (!isMatch && ngayNhapStr.contains(lowerCaseQuery)) isMatch = true;
 
-                if (!isMatch && ngayNhapStr.contains(lowerCaseQuery)) {
-                    isMatch = true;
-                }
-
-                if (isMatch) {
-                    dsPhieuNhap.add(item);
-                }
+                if (isMatch) dsPhieuNhap.add(item);
             }
         }
-
         adapter.notifyDataSetChanged();
         capNhatTong();
     }
 
-    // --- HÀM TẢI DỮ LIỆU TỪ FIREBASE ---
     private void layDuLieuFirebase() {
         phieuNhapRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 dsPhieuNhap.clear();
                 originalList.clear();
-
                 for (DataSnapshot item : snapshot.getChildren()) {
                     PhieuNhap pn = item.getValue(PhieuNhap.class);
                     originalList.add(pn);
                 }
-
                 dsPhieuNhap.addAll(originalList);
                 adapter.notifyDataSetChanged();
                 capNhatTong();
-                // Phải gọi filterList sau khi dữ liệu đã tải
                 filterList(edtTimPn.getText().toString());
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Firebase", "Lỗi khi đọc dữ liệu Phiếu Nhập", error.toException());
-                Toast.makeText(DanhSachPhieuNhapActivity.this, "Lỗi tải dữ liệu!", Toast.LENGTH_SHORT).show();
+                Log.e("Firebase", "Lỗi tải dữ liệu", error.toException());
             }
         });
     }
@@ -167,24 +156,8 @@ public class DanhSachPhieuNhapActivity extends AppCompatActivity {
     private void setupSearchListener() {
         edtTimPn.addTextChangedListener(new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterList(s.toString());
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) { filterList(s.toString()); }
             public void afterTextChanged(Editable s) {}
         });
-    }
-
-    // === HÀM XÓA (Giữ lại logic xóa) ===
-    public void thucHienXoaPhieu(String maPhieu) {
-        new AlertDialog.Builder(this)
-                .setTitle("Xác nhận xóa Phiếu Nhập")
-                .setMessage("Bạn có chắc chắn muốn xóa Phiếu Nhập có mã " + maPhieu + " không?")
-                .setPositiveButton("Xóa", (dialog, which) -> {
-                    phieuNhapRef.child(maPhieu).removeValue()
-                            .addOnSuccessListener(aVoid -> Toast.makeText(this, "Xóa Phiếu Nhập thành công!", Toast.LENGTH_SHORT).show())
-                            .addOnFailureListener(e -> Log.e("Firebase", "Lỗi xóa PN", e));
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
     }
 }

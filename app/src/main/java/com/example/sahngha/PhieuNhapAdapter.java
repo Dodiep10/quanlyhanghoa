@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -46,11 +48,10 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
 
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            // Lưu ý: Đảm bảo bạn có file layout item_phieu_nhap.xml (hoặc tên tương tự)
             convertView = inflater.inflate(mResource, parent, false);
 
             holder = new ViewHolder();
-            // Ánh xạ các view trong item của danh sách PHIẾU
+            // Ánh xạ các view khớp với layout item_phieunhap.xml
             holder.tvMaPhieu = convertView.findViewById(R.id.tvMaPhieu);
             holder.tvNgayNhap = convertView.findViewById(R.id.tvNgayNhap);
             holder.tvNguoiTao = convertView.findViewById(R.id.tvNguoiTao);
@@ -66,12 +67,15 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
         PhieuNhap phieuNhap = getItem(position);
 
         if (phieuNhap != null) {
-            // 1. Format ngày tháng
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+            // 1. Format ngày tháng (dd/MM/yyyy)
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
             String ngayNhapStr = sdf.format(new Date(phieuNhap.getThoiGianNhap()));
 
-            // 2. Format tiền tệ
-            String tongTienStr = String.format(Locale.getDefault(), "Tổng tiền: %,.0fđ", phieuNhap.getTongTien());
+            // 2. Format tiền tệ chuẩn Việt Nam (1.000.000đ)
+            DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+            symbols.setGroupingSeparator('.'); // Dùng dấu chấm phân cách hàng nghìn
+            DecimalFormat decimalFormat = new DecimalFormat("#,###", symbols);
+            String tongTienStr = "Tổng tiền: " + decimalFormat.format(phieuNhap.getTongTien()) + "đ";
 
             // 3. Hiển thị lên giao diện
             holder.tvMaPhieu.setText("Mã Phiếu: " + phieuNhap.getMaPhieu());
@@ -81,6 +85,10 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
 
             // 4. Xử lý sự kiện nút Xóa
             if (holder.btnXoa != null) {
+                // Quan trọng: Chặn nút xóa chiếm quyền click của cả dòng
+                holder.btnXoa.setFocusable(false);
+                holder.btnXoa.setFocusableInTouchMode(false);
+
                 holder.btnXoa.setOnClickListener(v -> {
                     if (mListener != null) {
                         mListener.onDeleteClick(phieuNhap.getMaPhieu(), position);
@@ -88,7 +96,7 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
                 });
             }
 
-            // 5. QUAN TRỌNG: Bắt sự kiện click vào dòng để xem chi tiết
+            // 5. Bắt sự kiện click vào cả dòng để xem chi tiết
             convertView.setOnClickListener(v -> {
                 Intent intent = new Intent(mContext, XemChiTietPhieu.class);
                 intent.putExtra("MA_PHIEU", phieuNhap.getMaPhieu());

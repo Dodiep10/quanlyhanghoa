@@ -1,66 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="#FFFFFF"
-    android:padding="10dp"
     android:gravity="center_vertical"
-    android:elevation="2dp"
-    android:layout_marginBottom="8dp"
-    android:descendantFocusability="blocksDescendants">  <LinearLayout
-    android:orientation="vertical"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_weight="1">
-    <TextView
-        android:id="@+id/tvMaHangHoa"
-        android:text="Mã: HH01"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:id="@+id/txtTenHang"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Tên hàng hóa"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="#222" />
+    android:descendantFocusability="blocksDescendants">
 
-    <TextView
-        android:id="@+id/txtGia"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Giá: 50.000đ"
-        android:textColor="#666"
-        android:textSize="14sp" />
-
-    <TextView
-        android:id="@+id/txtSoLuong"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Số lượng: 10"
-        android:textColor="#666"
-        android:textSize="14sp" />
-</LinearLayout>
+    <androidx.cardview.widget.CardView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="-15dp"
+        app:cardCornerRadius="40dp"
+        app:cardElevation="0dp"
+        android:layout_gravity="center_vertical"
+        android:translationZ="5dp"> <ImageView
+        android:id="@+id/imgHangHoaAvt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_launcher_background"
+        android:scaleType="centerCrop"
+        android:background="#D1F0F5"/>
+    </androidx.cardview.widget.CardView>
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="end">
+        android:layout_weight="1"
+        android:background="@drawable/bg_item_card_blue"
+        android:orientation="horizontal"
+        android:paddingStart="25dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="10dp"
+        android:minHeight="90dp"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvMaHangHoa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mã hàng hoá"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtTenHang"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tên hàng hoá"
+                android:textColor="#E0F7FA"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/txtGia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Giá: 0đ"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp"/>
+
+            <TextView
+                android:id="@+id/txtSoLuong"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Số lượng: 0"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnXoa"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:backgroundTint="#AF6B7B"
-            android:src="@drawable/ic_delete"
-            android:padding="6dp"
-            android:contentDescription="Xóa"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:background="@drawable/bg_search_rounded"
+            android:backgroundTint="#FFFFFF"
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="#367486"
+            android:padding="5dp"
             android:focusable="false"
-            android:focusableInTouchMode="false" /> </LinearLayout>
+            android:focusableInTouchMode="false" />
+
+    </LinearLayout>
 
 </LinearLayout>

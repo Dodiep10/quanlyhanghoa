@@ -6,6 +6,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.LinearLayout; // Mới thêm
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,7 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import android.widget.Button;
 import android.view.View;
-import android.widget.AdapterView; // Cần thiết cho setOnItemClickListener
+import android.widget.AdapterView;
 
 import java.util.ArrayList;
 
@@ -38,10 +39,11 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
     TextView txtTong;
     Button btn_Them;
 
+    // === KHAI BÁO CÁC NÚT DANH MỤC (MỚI THÊM) ===
+    LinearLayout btnDoAnVat, btnNuocNgot, btnKeo, btnBanh;
+
     FirebaseDatabase database;
     DatabaseReference hangHoaRef;
-
-    // ĐÃ BỎ: private boolean isSelectorMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +51,19 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // Ánh xạ
+        // --- 1. ÁNH XẠ VIEW ---
         txtTong = findViewById(R.id.txtTong);
         lvHangHoa = findViewById(R.id.lvHangHoa);
         btn_Them = findViewById(R.id.btnThem);
         edtTimHh = findViewById(R.id.edt_timhh);
 
-        // Khởi tạo Firebase
+        // Ánh xạ các nút danh mục mới thêm trong layout
+        btnDoAnVat = findViewById(R.id.btnDoAnVat);
+        btnNuocNgot = findViewById(R.id.btnNuocNgot);
+        btnKeo = findViewById(R.id.btnKeo);
+        btnBanh = findViewById(R.id.btnBanh);
+
+        // --- 2. KHỞI TẠO FIREBASE ---
         database = FirebaseDatabase.getInstance("https://quanlyhanghoa-e4135-default-rtdb.asia-southeast1.firebasedatabase.app/");
         hangHoaRef = database.getReference("hanghoa");
 
@@ -70,29 +78,39 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
         // Lấy dữ liệu từ Firebase
         layDuLieuFirebase();
 
-        // === LOGIC CŨ: CHẾ ĐỘ QUẢN LÝ MẶC ĐỊNH ===
+        // --- 3. XỬ LÝ CÁC SỰ KIỆN ---
 
-        // 1. Nút Thêm Hàng
+        // Nút Thêm Hàng
         btn_Them.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, themhanghoa.class);
             startActivity(intent);
         });
 
-        // 2. Click Item (Xem Chi tiết Hàng hóa)
+        // Click Item (Xem Chi tiết Hàng hóa)
         lvHangHoa.setOnItemClickListener((parent, view, position, id) -> {
             HangHoa selectedHangHoa = dsHangHoa.get(position);
-
-            // Logic Mở màn hình ChiTietHangHoaActivity
             Intent detailIntent = new Intent(MainActivity.this, ChiTietHangHoaActivity.class);
             detailIntent.putExtra("MA_HANG_HOA", selectedHangHoa.getMaHangHoa());
             startActivity(detailIntent);
         });
 
+        // === XỬ LÝ CLICK DANH MỤC (MỚI THÊM) ===
+        // Lưu ý: Các chuỗi text này phải khớp với "Loại hàng hoá" bạn nhập trên Firebase
+        btnDoAnVat.setOnClickListener(v -> moManHinhLoc("Đồ ăn vặt"));
+        btnNuocNgot.setOnClickListener(v -> moManHinhLoc("Nước ngọt"));
+        btnKeo.setOnClickListener(v -> moManHinhLoc("Kẹo"));
+        btnBanh.setOnClickListener(v -> moManHinhLoc("Bánh"));
+
         // Thiết lập chức năng tìm kiếm
         setupSearchListener();
     }
 
-    // ĐÃ BỎ: setupSelectorModeListener()
+    // === HÀM CHUYỂN MÀN HÌNH LỌC (MỚI THÊM) ===
+    private void moManHinhLoc(String loaiHang) {
+        Intent intent = new Intent(MainActivity.this, DanhSachTheoLoaiActivity.class);
+        intent.putExtra("LOAI_CAN_LOC", loaiHang);
+        startActivity(intent);
+    }
 
     // HÀM THIẾT LẬP LẮNG NGHE TÌM KIẾM (GIỮ NGUYÊN)
     private void setupSearchListener() {
@@ -103,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Gọi hàm lọc mỗi khi văn bản thay đổi
                 filterList(s.toString());
             }
 
@@ -116,35 +133,24 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
     // HÀM LỌC DỮ LIỆU (GIỮ NGUYÊN)
     private void filterList(String query) {
         String lowerCaseQuery = query.toLowerCase().trim();
-
         dsHangHoa.clear();
 
         if (lowerCaseQuery.isEmpty()) {
-            // Nếu ô tìm kiếm trống, hiển thị lại toàn bộ danh sách gốc
             dsHangHoa.addAll(originalList);
         } else {
-            // Duyệt qua danh sách gốc (originalList)
             for (HangHoa item : originalList) {
-                // Kiểm tra Mã hàng hóa và Tên hàng hóa
                 boolean isMatch = false;
-
-                // 1. Kiểm tra Mã hàng hóa
                 if (item.getMaHangHoa() != null && item.getMaHangHoa().toLowerCase().contains(lowerCaseQuery)) {
                     isMatch = true;
                 }
-
-                // 2. Kiểm tra Tên hàng hóa (chỉ kiểm tra nếu chưa khớp Mã)
                 if (!isMatch && item.getTen() != null && item.getTen().toLowerCase().contains(lowerCaseQuery)) {
                     isMatch = true;
                 }
-
                 if (isMatch) {
                     dsHangHoa.add(item);
                 }
             }
         }
-
-        // Cập nhật Adapter và Tổng số
         adapter.notifyDataSetChanged();
         capNhatTong();
     }
@@ -159,16 +165,11 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
 
                 for (DataSnapshot item : snapshot.getChildren()) {
                     HangHoa hh = item.getValue(HangHoa.class);
-                    originalList.add(hh); // Thêm vào danh sách gốc
+                    originalList.add(hh);
                 }
-
-                // Hiển thị tất cả dữ liệu gốc lên ListView lần đầu
                 dsHangHoa.addAll(originalList);
-
                 adapter.notifyDataSetChanged();
                 capNhatTong();
-
-                // Lọc lại dữ liệu ngay sau khi load xong nếu người dùng đã gõ tìm kiếm
                 filterList(edtTimHh.getText().toString());
             }
             @Override
@@ -179,10 +180,8 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
     }
 
     private void capNhatTong() {
-        // Cập nhật tổng dựa trên dsHangHoa (danh sách hiển thị)
         txtTong.setText("Tổng: " + dsHangHoa.size() + " sản phẩm");
     }
-
 
     @Override
     public void onDeleteClick(String hangHoaId, int position) {
@@ -198,7 +197,6 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
 
     private void xoaHangHoaTrenFirebase(String hangHoaId) {
         DatabaseReference itemRef = hangHoaRef.child(hangHoaId);
-
         itemRef.removeValue()
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(MainActivity.this, "Xóa hàng hóa thành công!", Toast.LENGTH_SHORT).show();
