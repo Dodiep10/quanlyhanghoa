@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
+    android:id="@+id/main_phieunhap"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -8,17 +8,16 @@
     android:padding="16dp">
 
     <TextView
-        android:text="Quản Lý Hàng Hóa"
+        android:text="Quản Lý Phiếu Nhập"
         android:layout_marginTop="20dp"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="#4A3AFF"
-        android:layout_marginBottom="5dp"
+        android:textColor="#5E13E6"  android:layout_marginBottom="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <TextView
-        android:text="Danh sách chi tiết các mặt hàng trong kho"
+        android:text="Danh sách chi tiết các phiếu nhập hàng"
         android:textSize="14sp"
         android:textColor="#777"
         android:layout_marginBottom="12dp"
@@ -26,10 +25,10 @@
         android:layout_height="wrap_content" />
 
     <EditText
-        android:id="@+id/edt_timhh"
+        android:id="@+id/edt_timphieu"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="Tìm kiếm theo tên hàng hóa..."
+        android:hint="Tìm kiếm theo Mã phiếu nhập..."
         android:imeOptions="actionSearch"
         android:inputType="text"
         android:singleLine="true"
@@ -40,22 +39,21 @@
         android:layout_marginBottom="12dp"
         android:drawableStart="@android:drawable/ic_menu_search"
         android:drawablePadding="10dp"
-
         android:textColor="#000000"
         android:textColorHint="#999" />
+
     <Button
-        android:id="@+id/btnThem"
+        android:id="@+id/btnThemPhieu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_gravity="end"
-        android:backgroundTint="#2BAE66"
-        android:text="+ Thêm Hàng Hóa"
+        android:backgroundTint="#4CAF50" android:text="+ Tạo Phiếu Nhập"
         android:textColor="@android:color/white" />
 
     <TextView
-        android:id="@+id/txtTong"
-        android:text="Tổng: 0 sản phẩm"
+        android:id="@+id/txtTongPhieu"
+        android:text="Tổng: 0 phiếu nhập"
         android:textSize="16sp"
         android:textStyle="italic"
         android:textColor="#555"
@@ -64,7 +62,7 @@
         android:layout_height="wrap_content" />
 
     <ListView
-        android:id="@+id/lvHangHoa"
+        android:id="@+id/lvPhieuNhap"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
