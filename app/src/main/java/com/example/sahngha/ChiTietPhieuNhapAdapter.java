@@ -36,7 +36,6 @@ public class ChiTietPhieuNhapAdapter extends RecyclerView.Adapter<ChiTietPhieuNh
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Layout item_chitiet_nhap.xml (đã tạo có nút xóa)
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chitiet_nhap, parent, false);
         return new ViewHolder(view);
     }
@@ -46,20 +45,16 @@ public class ChiTietPhieuNhapAdapter extends RecyclerView.Adapter<ChiTietPhieuNh
         ChiTietNhapHang item = listChiTiet.get(position);
         DecimalFormat df = new DecimalFormat("#,###");
 
-        // --- SỬA LỖI LOGIC LẤY DỮ LIỆU ---
 
         // Kiểm tra null
         if (item.getHangHoa() != null) {
-            // Sửa lỗi: ct.getTenHangHoa() -> item.getHangHoa().getTen()
             holder.tvTenHang.setText(item.getHangHoa().getTen());
-            // Sửa lỗi: ct.getGiaNhap() -> item.getHangHoa().getGia()
             holder.tvDonGia.setText(df.format(item.getHangHoa().getGia()));
         } else {
             holder.tvTenHang.setText("Hàng hóa lỗi");
             holder.tvDonGia.setText("0");
         }
 
-        // Lấy số lượng: ct.getSoLuongNhap() -> item.getSoLuong()
         holder.tvSoLuong.setText(String.valueOf(item.getSoLuong()));
 
         // Thành tiền

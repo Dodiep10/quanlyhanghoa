@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.bumptech.glide.Glide; // Thư viện load ảnh (cần thêm vào build.gradle)
+import com.bumptech.glide.Glide; // Thư viện dùng để tải và hiển thị ảnh từ URL
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,54 +23,63 @@ import java.text.DecimalFormat;
 
 public class ChiTietHangHoaActivity extends AppCompatActivity {
 
-    // Khai báo các biến View
+    // === 1. KHAI BÁO BIẾN ===
+    // Các biến đại diện cho các thành phần giao diện (UI)
     private Toolbar toolbar;
     private ImageView imgHinhAnh;
     private TextView tvTen, tvMa, tvLoai, tvGia, tvSoLuong;
     private TextView tvTenNCC, tvEmailNCC, tvSdtNCC;
-    private FloatingActionButton fabSua;
+    private FloatingActionButton fabSua; // Nút tròn nổi để sửa hàng hóa
 
-    // Firebase
+    // Các biến để làm việc với Firebase
     private DatabaseReference mRef;
     private String receivedMaHangHoa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chi_tiet_hang_hoa); // Đảm bảo tên layout XML đúng
+        setContentView(R.layout.activity_chi_tiet_hang_hoa); // Liên kết file code này với file giao diện XML
 
-        // 1. Ánh xạ View
+        // === 2. KHỞI TẠO GIAO DIỆN ===
+        // Gọi hàm ánh xạ để kết nối các biến Java với ID trong XML
         initViews();
 
-        // 2. Thiết lập Toolbar (Nút Back)
+        // Cấu hình Toolbar (thanh tiêu đề) có nút Back (mũi tên quay lại)
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
-        toolbar.setNavigationOnClickListener(v -> finish()); // Quay lại màn hình trước khi ấn nút Back
+        // Xử lý sự kiện khi ấn nút Back trên toolbar -> Đóng màn hình hiện tại
+        toolbar.setNavigationOnClickListener(v -> finish());
 
-        // 3. Nhận dữ liệu từ Intent (MainActivity gửi sang)
+        // === 3. NHẬN DỮ LIỆU TỪ MÀN HÌNH TRƯỚC ===
+        // Lấy Intent được gửi từ MainActivity
         Intent intent = getIntent();
         if (intent != null) {
+            // Lấy chuỗi Mã hàng hóa (Key: "MA_HANG_HOA")
             receivedMaHangHoa = intent.getStringExtra("MA_HANG_HOA");
         }
 
-        // 4. Load dữ liệu từ Firebase
+        // === 4. TẢI DỮ LIỆU TỪ FIREBASE ===
+        // Nếu mã hàng hóa hợp lệ thì gọi hàm tải dữ liệu
         if (receivedMaHangHoa != null && !receivedMaHangHoa.isEmpty()) {
             loadDataFromFirebase(receivedMaHangHoa);
         } else {
             Toast.makeText(this, "Lỗi: Không tìm thấy mã hàng hoá", Toast.LENGTH_SHORT).show();
         }
 
+        // === 5. XỬ LÝ SỰ KIỆN NÚT SỬA ===
         fabSua.setOnClickListener(v -> {
-            // Chuyển sang màn hình Sửa và gửi kèm Mã Hàng Hoá
+            // Tạo Intent để chuyển sang màn hình SuaHangHoaActivity
             Intent intentSua = new Intent(ChiTietHangHoaActivity.this, SuaHangHoaActivity.class);
+            // Gửi kèm mã hàng hóa sang màn hình sửa để biết cần sửa sản phẩm nào
             intentSua.putExtra("MA_HANG_HOA", receivedMaHangHoa);
             startActivity(intentSua);
         });
     }
 
+    // Hàm ánh xạ: Tìm View theo ID
     private void initViews() {
         toolbar = findViewById(R.id.toolbarChiTietMoi);
         imgHinhAnh = findViewById(R.id.imgChiTietHangHoa);
@@ -89,47 +98,43 @@ public class ChiTietHangHoaActivity extends AppCompatActivity {
         fabSua = findViewById(R.id.fabSuaHangHoa);
     }
 
+    // Hàm kết nối Firebase và lấy dữ liệu chi tiết
     private void loadDataFromFirebase(String maHangHoa) {
-        // Đường dẫn tới node hanghoa -> maHangHoa cụ thể
+        // Tạo đường dẫn đến node: hanghoa -> [Mã cụ thể]
         mRef = FirebaseDatabase.getInstance("https://quanlyhanghoa-e4135-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .getReference("hanghoa").child(maHangHoa);
 
+        // Lắng nghe sự thay đổi dữ liệu (Realtime)
         mRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    // Lấy dữ liệu về object HangHoa
+                    // Chuyển đổi dữ liệu JSON từ Firebase thành đối tượng Java (HangHoa)
                     HangHoa hh = snapshot.getValue(HangHoa.class);
 
                     if (hh != null) {
-                        // Hiển thị thông tin cơ bản
+                        // === HIỂN THỊ DỮ LIỆU LÊN GIAO DIỆN ===
+
+                        // Hiển thị tên, mã, loại, số lượng
                         tvTen.setText(hh.getTen());
                         tvMa.setText(hh.getMaHangHoa());
-                        tvLoai.setText(hh.getLoaiHangHoa()); // Giả sử model HangHoa có getLoai()
+                        tvLoai.setText(hh.getLoaiHangHoa());
                         tvSoLuong.setText(String.valueOf(hh.getSoLuong()));
 
-                        // Format giá tiền (Ví dụ: 100,000 VND)
+                        // Định dạng giá tiền
                         DecimalFormat formatter = new DecimalFormat("###,###,###");
                         String giaDaFormat = formatter.format(hh.getGia()) + " VND";
                         tvGia.setText(giaDaFormat);
 
-                        // Hiển thị thông tin NCC (Giả sử model HangHoa có các getter này)
-                        // Nếu model của bạn lưu NCC dưới dạng object con, hãy sửa lại hh.getNhaCungCap().getTen()...
-                        // Dưới đây là ví dụ giả định các trường nằm thẳng trong HangHoa
-                        /* Lưu ý: Bạn cần kiểm tra Class HangHoa của bạn có các trường nhaCungCap, emailNCC, sdtNCC không.
-                           Nếu không có, hãy thêm vào hoặc comment lại đoạn code dưới đây.
-                        */
-                        // tvTenNCC.setText(hh.getTenNhaCungCap());
-                        // tvEmailNCC.setText(hh.getEmailNhaCungCap());
-                        // tvSdtNCC.setText(hh.getSdtNhaCungCap());
 
-                        // Load ảnh bằng Glide
+                        // === TẢI ẢNH ===
+                        // Kiểm tra nếu có link ảnh thì dùng Glide để tải
                         if (hh.getHinhAnh() != null && !hh.getHinhAnh().isEmpty()) {
                             Glide.with(ChiTietHangHoaActivity.this)
-                                    .load(hh.getHinhAnh())
-                                    .placeholder(R.drawable.ic_launcher_background) // Ảnh chờ (tạo trong drawable nếu chưa có)
-                                    .error(R.drawable.ic_launcher_background)       // Ảnh lỗi
-                                    .into(imgHinhAnh);
+                                    .load(hh.getHinhAnh())                          // Link ảnh
+                                    .placeholder(R.drawable.ic_launcher_background) // Ảnh chờ khi đang tải
+                                    .error(R.drawable.ic_launcher_background)       // Ảnh hiển thị nếu lỗi
+                                    .into(imgHinhAnh);                              // View để hiển thị ảnh
                         }
                     }
                 }
@@ -137,6 +142,7 @@ public class ChiTietHangHoaActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                // Thông báo nếu có lỗi kết nối Firebase
                 Toast.makeText(ChiTietHangHoaActivity.this, "Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show();
             }
         });

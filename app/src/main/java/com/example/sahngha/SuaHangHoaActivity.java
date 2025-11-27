@@ -145,7 +145,6 @@ public class SuaHangHoaActivity extends AppCompatActivity {
                         edtGia.setText(String.valueOf((long)hh.getGia())); // Ép kiểu về long để bỏ số thập phân thừa
                         edtSoLuong.setText(String.valueOf(hh.getSoLuong()));
 
-                        // Nếu class HangHoa của bạn có các trường này, hãy bỏ comment:
                         edtTenNCC.setText(hh.getTenNCC());
                         edtEmailNCC.setText(hh.getEmailNCC());
                         edtSdtNCC.setText(hh.getSdtNCC());
@@ -242,7 +241,7 @@ public class SuaHangHoaActivity extends AppCompatActivity {
         updateMap.put("soLuong", soLuong);
         updateMap.put("hinhAnh", urlHinhAnh); // Link ảnh (Cloudinary hoặc cũ)
 
-        // Cần đảm bảo tên key khớp với Firebase của bạn (trong themhanghoa bạn dùng: tenNCC, email, sdt)
+        // Cần đảm bảo tên key khớp với Firebase (trong themhanghoa bạn dùng: tenNCC, email, sdt)
         updateMap.put("tenNCC", tenNCC);
         updateMap.put("email", emailNCC);
         updateMap.put("sdt", sdtNCC);

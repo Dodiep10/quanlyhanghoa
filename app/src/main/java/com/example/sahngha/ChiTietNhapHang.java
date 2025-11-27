@@ -4,7 +4,7 @@ public class ChiTietNhapHang {
     private HangHoa hangHoa;
     private int soLuong;
 
-    // Constructor rỗng (bắt buộc cho Firebase)
+    // Constructor rỗng
     public ChiTietNhapHang() {
     }
 
@@ -13,7 +13,7 @@ public class ChiTietNhapHang {
         this.soLuong = soLuong;
     }
 
-    // --- CÁC HÀM GETTER VÀ SETTER (Cần thiết để sửa lỗi) ---
+    // --- CÁC HÀM GETTER VÀ SETTER
 
     public HangHoa getHangHoa() {
         return hangHoa;
@@ -31,12 +31,12 @@ public class ChiTietNhapHang {
         this.soLuong = soLuong;
     }
 
-    // Helper: Lấy mã hàng hóa nhanh
+    // Lấy mã hàng hóa nhanh
     public String getMaHangHoa() {
         return hangHoa != null ? hangHoa.getMaHangHoa() : "";
     }
 
-    // Helper: Tính thành tiền
+    // Tính thành tiền
     public double getThanhTien() {
         return hangHoa != null ? hangHoa.getGia() * soLuong : 0;
     }
