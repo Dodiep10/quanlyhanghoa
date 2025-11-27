@@ -51,6 +51,8 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-analytics")
     implementation(libs.core.ktx)
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.4.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

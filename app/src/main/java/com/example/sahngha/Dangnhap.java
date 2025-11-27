@@ -27,6 +27,7 @@ public class Dangnhap extends AppCompatActivity {
         EditText edtPassword = findViewById(R.id.edtPassword);
         View btnLoginAction = findViewById(R.id.btnLoginAction);
 
+        //Sự kiện bấm nút đăng nhập
         btnLoginAction.setOnClickListener(v -> {
             String usernameInput = edtUsername.getText().toString().trim();
             String passwordInput = edtPassword.getText().toString().trim();

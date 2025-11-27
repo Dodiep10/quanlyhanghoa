@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton; // Mới thêm
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher; // Mới thêm
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +20,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.journeyapps.barcodescanner.ScanContract; // Mới thêm
+import com.journeyapps.barcodescanner.ScanOptions;   // Mới thêm
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -31,6 +35,7 @@ public class ThemPhieuNhap extends AppCompatActivity {
     private EditText edtNguoiNhap, edtSoLuongNhap;
     private TextView tvHangHoaDaChon, tvTongTien;
     private Button btnThemHang, btnLuuPhieuNhap;
+    private ImageButton btnScanNhapHang; // Nút quét mã mới
     private RecyclerView rvChiTietNhap;
 
     // Biến xử lý dữ liệu
@@ -43,6 +48,18 @@ public class ThemPhieuNhap extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference hangHoaRef;
     private DatabaseReference phieuNhapRef;
+
+    // --- BỘ QUÉT MÃ VẠCH ---
+    // Khi quét xong, kết quả trả về đây
+    private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(),
+            result -> {
+                if(result.getContents() != null) {
+                    String scannedCode = result.getContents();
+                    // Gọi hàm tìm kiếm hàng hoá theo mã vừa quét
+                    timVaChonHangHoaTheoMa(scannedCode);
+                }
+            });
+    // -----------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,30 +80,77 @@ public class ThemPhieuNhap extends AppCompatActivity {
         // 3. Cấu hình RecyclerView
         setupRecyclerView();
 
-        // 4. Tải danh sách hàng hoá từ Firebase (để hiện dialog chọn)
+        // 4. Tải danh sách hàng hoá từ Firebase
         layDuLieuHangHoa();
 
         // --- SỰ KIỆN CLICK ---
 
-        // Bấm vào TextView để chọn hàng hoá
+        // Bấm vào TextView để chọn hàng hoá thủ công
         tvHangHoaDaChon.setOnClickListener(v -> hienThiDialogChonHangHoa());
+
+        // --- SỰ KIỆN NÚT QUÉT MÃ ---
+        btnScanNhapHang.setOnClickListener(v -> {
+            // Kiểm tra xem dữ liệu đã tải xong chưa
+            if (listHangHoaFirebase.isEmpty()) {
+                Toast.makeText(this, "Đang tải dữ liệu hàng hoá, vui lòng đợi...", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Cấu hình quét
+            ScanOptions options = new ScanOptions();
+            options.setPrompt("Quét mã sản phẩm cần nhập");
+            options.setBeepEnabled(true);
+            options.setOrientationLocked(true);
+            options.setCaptureActivity(ManHinhQuetDoc.class); // Dùng màn hình dọc
+            barcodeLauncher.launch(options);
+        });
+        // ---------------------------
 
         // Bấm nút "Thêm hàng vào danh sách"
         btnThemHang.setOnClickListener(v -> xuLyThemHangVaoList());
 
-        // Bấm nút "Lưu phiếu nhập" (QUAN TRỌNG: Sẽ cập nhật kho ở đây)
+        // Bấm nút "Lưu phiếu nhập"
         btnLuuPhieuNhap.setOnClickListener(v -> xuLyLuuPhieuNhap());
     }
 
     private void initViews() {
         edtNguoiNhap = findViewById(R.id.edtNguoiNhap);
         tvHangHoaDaChon = findViewById(R.id.tvHangHoaDaChon);
+        btnScanNhapHang = findViewById(R.id.btnScanNhapHang); // Ánh xạ nút quét
         edtSoLuongNhap = findViewById(R.id.edtSoLuongNhap);
         btnThemHang = findViewById(R.id.btnThemHang);
         btnLuuPhieuNhap = findViewById(R.id.btnLuuPhieuNhap);
         rvChiTietNhap = findViewById(R.id.rvChiTietNhap);
         tvTongTien = findViewById(R.id.tvTongTien);
     }
+
+    // --- HÀM MỚI: TÌM HÀNG HOÁ KHI QUÉT XONG ---
+    private void timVaChonHangHoaTheoMa(String maVach) {
+        boolean found = false;
+        // Duyệt qua danh sách hàng hoá đã tải về từ Firebase
+        for (HangHoa hh : listHangHoaFirebase) {
+            // So sánh mã quét được với mã hàng hoá (không phân biệt hoa thường)
+            if (hh.getMaHangHoa() != null && hh.getMaHangHoa().equalsIgnoreCase(maVach)) {
+                selectedHangHoa = hh;
+
+                // Hiển thị thông tin lên giao diện
+                DecimalFormat df = new DecimalFormat("#,###");
+                String info = selectedHangHoa.getTen() + " (" + selectedHangHoa.getMaHangHoa() + ")";
+                tvHangHoaDaChon.setText(info);
+                tvHangHoaDaChon.setError(null); // Xóa lỗi nếu có
+
+                // Thông báo và đưa con trỏ chuột vào ô số lượng
+                Toast.makeText(this, "Đã chọn: " + hh.getTen(), Toast.LENGTH_SHORT).show();
+                edtSoLuongNhap.requestFocus();
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            Toast.makeText(this, "Không tìm thấy sản phẩm có mã: " + maVach, Toast.LENGTH_LONG).show();
+        }
+    }
+    // -------------------------------------------
 
     private void setupRecyclerView() {
         adapter = new ChiTietPhieuNhapAdapter(listChiTiet);
@@ -118,7 +182,7 @@ public class ThemPhieuNhap extends AppCompatActivity {
                 if (listHangHoaFirebase.isEmpty()) {
                     tvHangHoaDaChon.setText("Không có hàng hóa nào trong kho!");
                 } else {
-                    tvHangHoaDaChon.setHint("--- Bấm vào đây để chọn hàng hóa ---");
+                    tvHangHoaDaChon.setHint("--- Bấm chọn hoặc Quét mã ---");
                 }
             }
 
@@ -193,7 +257,8 @@ public class ThemPhieuNhap extends AppCompatActivity {
         // Reset ô nhập
         edtSoLuongNhap.setText("");
         selectedHangHoa = null;
-        tvHangHoaDaChon.setText("--- Bấm vào đây để chọn hàng hóa ---");
+        tvHangHoaDaChon.setText("");
+        tvHangHoaDaChon.setHint("--- Bấm chọn hoặc Quét mã ---");
     }
 
     private void updateTongTien() {

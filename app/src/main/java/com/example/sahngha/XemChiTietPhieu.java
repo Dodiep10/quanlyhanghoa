@@ -27,23 +27,19 @@ import java.util.Locale;
 
 public class XemChiTietPhieu extends AppCompatActivity {
 
-    // Khai báo các biến View
     private TextView tvMaPhieu, tvNguoiNhap, tvThoiGianNhap, tvTongTienChiTiet;
     private RecyclerView rvChiTietHangHoa;
     private Toolbar toolbar;
 
-    // Biến cho RecyclerView
     private ChiTietPhieuNhapAdapter adapter;
     private List<ChiTietNhapHang> listChiTiet;
 
-    // Biến Firebase và dữ liệu
     private String maPhieuCanXem;
     private DatabaseReference phieuNhapRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Quan trọng: Phải đúng tên file layout xml của bạn
         setContentView(R.layout.xemchitietphieu);
 
         // 1. Ánh xạ các View từ layout
@@ -94,8 +90,6 @@ public class XemChiTietPhieu extends AppCompatActivity {
 
     private void setupRecyclerView() {
         listChiTiet = new ArrayList<>();
-        // Tái sử dụng Adapter mà bạn đã dùng ở màn hình Thêm Phiếu Nhập
-        // Vì cấu trúc hiển thị 1 dòng chi tiết hàng hóa là giống nhau
         adapter = new ChiTietPhieuNhapAdapter(listChiTiet);
 
         rvChiTietHangHoa.setLayoutManager(new LinearLayoutManager(this));
@@ -144,7 +138,6 @@ public class XemChiTietPhieu extends AppCompatActivity {
         // --- 2. Hiển thị danh sách chi tiết hàng hóa ---
         listChiTiet.clear();
 
-        // Trong ThemPhieuNhap, bạn lưu chiTiet dưới dạng Map<String, ChiTietNhapHang>
         // Cần chuyển đổi Map này thành List để đưa vào RecyclerView
         if (phieuNhap.getChiTiet() != null) {
             listChiTiet.addAll(phieuNhap.getChiTiet().values());

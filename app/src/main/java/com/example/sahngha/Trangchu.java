@@ -28,7 +28,7 @@ public class Trangchu extends AppCompatActivity {
         cvQuanLyHangHoa = findViewById(R.id.cvQuanLyHangHoa);
         cvQuanLyPhieuNhap = findViewById(R.id.cvQuanLyPhieuNhap); // <-- ÁNH XẠ CARDVIEW PHIẾU NHẬP
 
-        // Ánh xạ thêm nút đăng xuất và lời chào (nếu cần xử lý sau này)
+        // Ánh xạ thêm nút đăng xuất và lời chào
         btnLogout = findViewById(R.id.btnLogout);
         tvWelcome = findViewById(R.id.tvWelcome);
 
@@ -43,7 +43,7 @@ public class Trangchu extends AppCompatActivity {
             }
         });
 
-        // 2. Sự kiện ấn vào thẻ "Quản lý phiếu nhập" <--- THÊM CODE NÀY
+        // 2. Sự kiện ấn vào thẻ "Quản lý phiếu nhập"
         cvQuanLyPhieuNhap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
         capNhatTong();
     }
 
-    // HÀM layDuLieuFirebase (GIỮ NGUYÊN)
+    // HÀM layDuLieuFirebase
     private void layDuLieuFirebase() {
         hangHoaRef.addValueEventListener(new ValueEventListener() {
             @Override

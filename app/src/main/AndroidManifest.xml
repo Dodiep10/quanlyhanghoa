@@ -3,7 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" /> <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" /> <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:name=".MyApplication"
@@ -15,6 +21,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SửaHàngHóa">
+
+        <activity
+            android:name=".ManHinhQuetDoc"
+            android:screenOrientation="fullSensor"
+            android:stateNotNeeded="true"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:exported="false" />
 
         <activity android:name=".DanhSachTheoLoaiActivity" />
 
@@ -33,41 +46,32 @@
             android:exported="false"
             android:label="Màn Hình Đăng Nhập"
             android:parentActivityName=".Welcome" />
-
         <activity
             android:name=".Trangchu"
             android:exported="false" />
-
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-
         <activity android:name=".themhanghoa" />
-
         <activity
             android:name=".ChiTietHangHoaActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
-
         <activity
             android:name=".SuaHangHoaActivity"
             android:exported="false"
             android:label="Sửa Hàng Hóa"
             android:parentActivityName=".ChiTietHangHoaActivity" />
-
         <activity
             android:name=".DanhSachPhieuNhapActivity"
             android:exported="false"
             android:label="Danh Sách Phiếu Nhập" />
-
         <activity
             android:name=".ThemPhieuNhap"
             android:exported="false"
             android:label="Tạo Phiếu Nhập Mới"
             android:parentActivityName=".DanhSachPhieuNhapActivity" />
-
         <activity android:name=".XemChiTietPhieu" />
-
     </application>
 
 </manifest>
