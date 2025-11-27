@@ -11,9 +11,10 @@
         android:id="@+id/toolbarThongKe"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="#3B04F8"
         app:title="Quản Lý Thống Kê"
-        app:titleTextColor="@android:color/white"
+        android:textStyle="bold"
+        app:titleTextColor="@color/white"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <TextView

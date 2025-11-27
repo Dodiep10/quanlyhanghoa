@@ -30,6 +30,15 @@ import java.util.Locale;
 
 import android.view.View;
 
+// Thêm các import này vào đầu file BaoCaoChiTietActivity.java
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.pdf.PdfDocument;
+import android.os.Environment;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class BaoCaoChiTietActivity extends AppCompatActivity {
 
     private Toolbar toolbarBaoCao;
@@ -89,6 +98,25 @@ public class BaoCaoChiTietActivity extends AppCompatActivity {
                 default:
                     Toast.makeText(this, "Lỗi: Loại báo cáo không xác định!", Toast.LENGTH_SHORT).show();
                     finish();
+            }
+        }
+
+        // Báo cáo chi tiết
+        if (loaiBaoCao != null) {
+            switch (loaiBaoCao) {
+                case ThongKeActivity.TON_KHO:
+                    // Đặt tiêu đề cho TextView lớn
+                    tvTieuDeBaoCao.setText("BÁO CÁO TỒN KHO HIỆN TẠI");
+                    // Đặt tiêu đề cho Toolbar
+                    getSupportActionBar().setTitle("Báo Cáo Tồn Kho");
+                    // ... các logic khác ...
+                    break;
+                case ThongKeActivity.NHAP_HANG:
+                    tvTieuDeBaoCao.setText("THỐNG KÊ NHẬP HÀNG"); // Đặt tiêu đề cho TextView lớn
+                    getSupportActionBar().setTitle("Báo Cáo Nhập Hàng"); // Đặt tiêu đề cho Toolbar
+                    // ... các logic khác ...
+                    break;
+                // ...
             }
         }
     }
@@ -202,12 +230,6 @@ public class BaoCaoChiTietActivity extends AppCompatActivity {
         });
     }
 
-    // ====================== PHẦN TRUY VẤN DỮ LIỆU NHẬP HÀNG (SỬ DỤNG NGÀY) ======================
-
-    // File: app/src/main/java/com/example/sahngha/BaoCaoChiTietActivity.java
-
-// ... (Các hàm khác giữ nguyên) ...
-
 // ====================== PHẦN TRUY VẤN DỮ LIỆU NHẬP HÀNG (SỬ DỤNG NGÀY) ======================
 
     private void loadBaoCaoNhapHang() {
@@ -224,6 +246,7 @@ public class BaoCaoChiTietActivity extends AppCompatActivity {
                 .startAt(thoiGianBatDau)
                 .endAt(thoiGianKetThuc);
 
+        // Đặt trạng thái đang tải
         tvTongSoLieu.setText("Đang tải dữ liệu...");
 
         query.addValueEventListener(new ValueEventListener() {
@@ -265,23 +288,140 @@ public class BaoCaoChiTietActivity extends AppCompatActivity {
 
     // ====================== PHẦN XUẤT BÁO CÁO (CHƯA CODE CHI TIẾT) ======================
 
+    // Sửa hàm: private void xuatBaoCao()
+
     private void xuatBaoCao() {
+        String pdfContent;
+        String pdfTitle;
+
         if (ThongKeActivity.TON_KHO.equals(loaiBaoCao)) {
             if (dsHangHoaResult.isEmpty()) {
                 Toast.makeText(this, "Không có dữ liệu tồn kho để xuất.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // BẮT ĐẦU CODE XUẤT FILE TỪ dsHangHoaResult
-            Toast.makeText(this, "Đang xuất Báo Cáo Tồn Kho...", Toast.LENGTH_SHORT).show();
-            // Chức năng xuất PDF/Excel sẽ được code ở bước tiếp theo
+            pdfTitle = "Báo Cáo Tồn Kho";
+            pdfContent = formatDataForPdf(); // Gọi hàm định dạng
+
         } else if (ThongKeActivity.NHAP_HANG.equals(loaiBaoCao)) {
             if (dsPhieuNhapResult.isEmpty()) {
                 Toast.makeText(this, "Không có dữ liệu nhập hàng để xuất.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // BẮT ĐẦU CODE XUẤT FILE TỪ dsPhieuNhapResult
-            Toast.makeText(this, "Đang xuất Báo Cáo Nhập Hàng...", Toast.LENGTH_SHORT).show();
-            // Chức năng xuất PDF/Excel sẽ được code ở bước tiếp theo
+            pdfTitle = "Báo Cáo Nhập Hàng";
+            pdfContent = formatDataForPdf(); // Gọi hàm định dạng
+
+        } else {
+            return;
         }
+
+        // GỌI HÀM TẠO PDF
+        createPdf(pdfTitle, pdfContent);
+    }
+
+    // Tạo nội dung và xuất PDF
+    private void createPdf(String title, String content) {
+        // 1. Chuẩn bị File và Đường dẫn
+        File pdfFile;
+        // Tên file: BAOCAO_TEN_NGAYHIEN_TAI.pdf
+        String fileName = "BAOCAO_" + title.replace(" ", "_").toUpperCase() + "_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + ".pdf";
+
+        // Lưu file vào thư mục Download (Dễ tìm nhất)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            // Đối với Android 10 trở lên, ta dùng MediaStore
+            pdfFile = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName);
+        } else {
+            // Đối với các phiên bản cũ hơn, dùng External Storage
+            pdfFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
+        }
+
+        // 2. Tạo đối tượng PdfDocument
+        PdfDocument document = new PdfDocument();
+
+        // 3. Thiết lập thuộc tính cho trang (Page)
+        // Kích thước trang A4 (595x842 points)
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create();
+
+        // 4. Mở trang và vẽ nội dung
+        PdfDocument.Page page = document.startPage(pageInfo);
+        Canvas canvas = page.getCanvas();
+
+        // Thiết lập bút vẽ (Paint)
+        Paint paint = new Paint();
+        paint.setTextSize(12);
+
+        // Định dạng nội dung
+        int x = 40, y = 50;
+
+        // Vẽ Tiêu đề (In đậm và lớn hơn)
+        paint.setTextSize(18);
+        paint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText(title, pageInfo.getPageWidth() / 2, y, paint);
+
+        y += 40;
+        paint.setTextSize(12);
+        paint.setTextAlign(Paint.Align.LEFT);
+
+        // Vẽ nội dung (Chia nhỏ nội dung theo dòng)
+        String[] lines = content.split("\n");
+        for (String line : lines) {
+            canvas.drawText(line, x, y, paint);
+            y += 20; // Xuống dòng
+
+            // Nếu hết trang, ta cần thêm trang mới (logic đơn giản)
+            if (y > 800) {
+                document.finishPage(page);
+                pageInfo = new PdfDocument.PageInfo.Builder(595, 842, document.getPages().size() + 1).create();
+                page = document.startPage(pageInfo);
+                canvas = page.getCanvas();
+                y = 50;
+            }
+        }
+
+        // 5. Kết thúc trang
+        document.finishPage(page);
+
+        // 6. Lưu file
+        try {
+            FileOutputStream fos = new FileOutputStream(pdfFile);
+            document.writeTo(fos);
+            document.close();
+            Toast.makeText(this, "Xuất PDF thành công! Lưu tại: Downloads/" + fileName, Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            Toast.makeText(this, "Lỗi khi lưu file PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+    }
+
+    // Định dạng dữ liệu thành chuỗi string
+    private String formatDataForPdf() {
+        StringBuilder sb = new StringBuilder();
+        DecimalFormat decimalFormat = new DecimalFormat("#,###");
+
+        if (ThongKeActivity.TON_KHO.equals(loaiBaoCao)) {
+            sb.append("Tình trạng Tồn Kho Hiện Tại:\n");
+            sb.append("Mã hàng | Tên hàng | Số lượng tồn | Giá bán\n");
+            sb.append("------------------------------------------\n");
+            for (HangHoa hh : dsHangHoaResult) {
+                sb.append(hh.getMaHangHoa()).append(" | ")
+                        .append(hh.getTen()).append(" | ")
+                        .append(hh.getSoLuong()).append(" | ")
+                        .append(decimalFormat.format(hh.getGia())).append("đ\n");
+            }
+        } else if (ThongKeActivity.NHAP_HANG.equals(loaiBaoCao)) {
+            sb.append("Báo Cáo Nhập Hàng: ").append(sdf.format(new Date(thoiGianBatDau)))
+                    .append(" đến ").append(sdf.format(new Date(thoiGianKetThuc))).append("\n\n");
+            sb.append("Mã Phiếu | Thời gian nhập | Người nhập | Tổng tiền\n");
+            sb.append("---------------------------------------------------\n");
+            for (PhieuNhap pn : dsPhieuNhapResult) {
+                String time = new SimpleDateFormat("dd/MM/yy HH:mm", Locale.getDefault()).format(new Date(pn.getThoiGianNhap()));
+                sb.append(pn.getMaPhieu()).append(" | ")
+                        .append(time).append(" | ")
+                        .append(pn.getNguoiNhap()).append(" | ")
+                        .append(decimalFormat.format(pn.getTongTien())).append("đ\n");
+
+                // Nếu muốn thêm chi tiết từng món hàng nhập trong phiếu, logic sẽ phức tạp hơn ở đây.
+            }
+        }
+        return sb.toString();
     }
 }
