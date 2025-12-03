@@ -67,8 +67,9 @@ public class PhieuNhapAdapter extends ArrayAdapter<PhieuNhap> {
         PhieuNhap phieuNhap = getItem(position);
 
         if (phieuNhap != null) {
-            // 1. Format ngày tháng (dd/MM/yyyy)
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            // SAU KHI SỬA
+            // 1. Format ngày tháng (HH:mm dd/MM/yyyy) - Bổ sung Giờ và Phút
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.getDefault());
             String ngayNhapStr = sdf.format(new Date(phieuNhap.getThoiGianNhap()));
 
             // 2. Format tiền tệ chuẩn Việt Nam (1.000.000đ)
