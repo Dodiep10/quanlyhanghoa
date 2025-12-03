@@ -2,12 +2,19 @@
 package com.example.sahngha;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.appcompat.widget.Toolbar;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
 
-// Đây là lớp trung gian, nhiệm vụ chính là chứa các hằng số cần thiết
-// và sẽ được dùng để khởi tạo giao diện chọn loại báo cáo.
-
+// Đây là lớp trung gian chứa logic chọn loại báo cáo
 public class ThongKeActivity extends AppCompatActivity {
+
+    CardView cvBaoCaoNhapHang;
+    CardView cvBaoCaoTonKho;
+    Toolbar toolbarThongKe;
 
     // Các Hằng số để gửi thông tin loại báo cáo
     public static final String LOAI_BAO_CAO = "LOAI_BAO_CAO";
@@ -17,8 +24,38 @@ public class ThongKeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Do màn hình này cũng cần hiển thị, ta cần thiết lập layout
-        // Bạn sẽ cần tạo activity_thong_ke.xml sau, nhưng tạm thời comment để tránh lỗi
-        // setContentView(R.layout.activity_thong_ke); 
+        setContentView(R.layout.activity_thong_ke);
+
+        // Ánh xạ
+        cvBaoCaoNhapHang = findViewById(R.id.cvBaoCaoNhapHang);
+        cvBaoCaoTonKho = findViewById(R.id.cvBaoCaoTonKho);
+        toolbarThongKe = findViewById(R.id.toolbarThongKe);
+
+        // Thiết lập Toolbar (Có nút quay lại)
+        setSupportActionBar(toolbarThongKe);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbarThongKe.setNavigationOnClickListener(v -> finish());
+
+        // 1. Sự kiện click Báo Cáo Nhập Hàng
+        cvBaoCaoNhapHang.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ThongKeActivity.this, BaoCaoChiTietActivity.class);
+                intent.putExtra(LOAI_BAO_CAO, NHAP_HANG);
+                startActivity(intent);
+            }
+        });
+
+        // 2. Sự kiện click Báo Cáo Tồn Kho
+        cvBaoCaoTonKho.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ThongKeActivity.this, BaoCaoChiTietActivity.class);
+                intent.putExtra(LOAI_BAO_CAO, TON_KHO);
+                startActivity(intent);
+            }
+        });
     }
 }
