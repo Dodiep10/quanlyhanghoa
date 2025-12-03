@@ -15,6 +15,7 @@ public class Trangchu extends AppCompatActivity {
     // Khai báo biến
     CardView cvQuanLyHangHoa;
     CardView cvQuanLyPhieuNhap; // <-- KHAI BÁO THÊM CARDVIEW MỚI
+    CardView cvThongKe; // <<< 1. KHAI BÁO BIẾN THỐNG KÊ MỚI
     Button btnLogout;
     TextView tvWelcome;
 
@@ -27,6 +28,7 @@ public class Trangchu extends AppCompatActivity {
         // Tìm CardView theo id
         cvQuanLyHangHoa = findViewById(R.id.cvQuanLyHangHoa);
         cvQuanLyPhieuNhap = findViewById(R.id.cvQuanLyPhieuNhap); // <-- ÁNH XẠ CARDVIEW PHIẾU NHẬP
+        cvThongKe = findViewById(R.id.cvThongKe); // <<< 2. ÁNH XẠ CARDVIEW THỐNG KÊ
 
         // Ánh xạ thêm nút đăng xuất và lời chào
         btnLogout = findViewById(R.id.btnLogout);
@@ -59,6 +61,15 @@ public class Trangchu extends AppCompatActivity {
             public void onClick(View v) {
                 Toast.makeText(Trangchu.this, "Đã đăng xuất!", Toast.LENGTH_SHORT).show();
                 finish();
+            }
+        });
+
+        // 4. Sự kiện ấn vào thẻ "Báo cáo thống kê" <<< 3. SỰ KIỆN MỚI
+        cvThongKe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Trangchu.this, ThongKeActivity.class);
+                startActivity(intent);
             }
         });
     }
