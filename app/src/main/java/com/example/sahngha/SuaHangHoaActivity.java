@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter; // Thêm
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner; // Thêm
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -26,6 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList; // Thêm
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,21 +36,28 @@ public class SuaHangHoaActivity extends AppCompatActivity {
 
     // View
     private ImageView imgHinhAnh;
-    private TextInputEditText edtTen, edtLoai, edtGia, edtSoLuong;
+    private TextInputEditText edtTen, edtGia, edtSoLuong; // Bỏ edtLoai
+    private Spinner spnLoai; // [THAY ĐỔI] Dùng Spinner thay vì EditText
     private EditText edtTenNCC, edtEmailNCC, edtSdtNCC;
     private Button btnLuu, btnHuy;
 
     // Firebase
     private DatabaseReference mRef;
+    private DatabaseReference loaiHangRef; // [MỚI] Ref lấy danh sách loại
 
     private String maHangHoa;
     private String linkAnhCu = "";
     private Uri uriAnhMoi = null;
+    private String loaiHangHienTai = ""; // Biến lưu loại hàng cũ để set selection
+
+    // Spinner Data
+    private ArrayList<String> loaiHangList;
+    private ArrayAdapter<String> adapterLoai;
 
     private ActivityResultLauncher<String> pickImageLauncher;
     private ProgressDialog progressDialog;
 
-    // === CẤU HÌNH CLOUDINARY (Đã lấy từ file themhanghoa của bạn) ===
+    // === CẤU HÌNH CLOUDINARY ===
     private static final String CLOUD_NAME = "dbrussgnn";
     private static final String UPLOAD_PRESET = "ml_default";
     private static final String API_KEY = "567682869669221";
@@ -58,9 +68,7 @@ public class SuaHangHoaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sua_hang_hoa);
 
-        // Khởi tạo Cloudinary
         initCloudinary();
-
         initViews();
 
         progressDialog = new ProgressDialog(this);
@@ -70,28 +78,28 @@ public class SuaHangHoaActivity extends AppCompatActivity {
         // 1. Nhận mã
         Intent intent = getIntent();
         if (intent != null) maHangHoa = intent.getStringExtra("MA_HANG_HOA");
-
         if (maHangHoa == null) { finish(); return; }
 
-        // 2. Kết nối Firebase Realtime
-        mRef = FirebaseDatabase.getInstance("https://quanlyhanghoa-e4135-default-rtdb.asia-southeast1.firebasedatabase.app/")
-                .getReference("hanghoa").child(maHangHoa);
+        // 2. Kết nối Firebase
+        FirebaseDatabase db = FirebaseDatabase.getInstance("https://quanlyhanghoa-e4135-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        mRef = db.getReference("hanghoa").child(maHangHoa);
+        loaiHangRef = db.getReference("loaihanghoa"); // [MỚI]
 
-        // 3. Load dữ liệu
-        loadDuLieuCu();
+        // 3. Cấu hình Spinner
+        setupSpinner();
 
-        // 4. Chọn ảnh
+        // 4. Load danh sách loại hàng TRƯỚC, sau đó load dữ liệu hàng
+        layDanhSachLoaiHang();
+
+        // 5. Setup chọn ảnh và nút bấm
         setupImagePicker();
         imgHinhAnh.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
-
-        // 5. Lưu
         btnLuu.setOnClickListener(v -> xuLyLuu());
         btnHuy.setOnClickListener(v -> finish());
     }
 
     private void initCloudinary() {
         try {
-            // Kiểm tra xem đã init chưa để tránh crash
             if (MediaManager.get() == null) {
                 Map<String, Object> config = new HashMap<>();
                 config.put("cloud_name", CLOUD_NAME);
@@ -101,24 +109,58 @@ public class SuaHangHoaActivity extends AppCompatActivity {
                 MediaManager.init(this, config);
             }
         } catch (Exception e) {
-            // Nếu đã init ở màn hình khác rồi thì bỏ qua
-            Log.d("Cloudinary", "Đã khởi tạo trước đó hoặc lỗi nhẹ: " + e.getMessage());
+            Log.d("Cloudinary", "Init error: " + e.getMessage());
         }
     }
 
     private void initViews() {
         imgHinhAnh = findViewById(R.id.imgSuaHinhAnh);
         edtTen = findViewById(R.id.edtSuaTen);
-        edtLoai = findViewById(R.id.edtSuaLoai);
+        // edtLoai = findViewById(R.id.edtSuaLoai); // XÓA
+        spnLoai = findViewById(R.id.spnSuaLoai); // [MỚI] Ánh xạ Spinner (Nhớ sửa ID trong XML)
+
         edtGia = findViewById(R.id.edtSuaGia);
         edtSoLuong = findViewById(R.id.edtSuaSoLuong);
-
         edtTenNCC = findViewById(R.id.edtSuaTenNCC);
         edtEmailNCC = findViewById(R.id.edtSuaEmailNCC);
         edtSdtNCC = findViewById(R.id.edtSuaSdtNCC);
-
         btnLuu = findViewById(R.id.btnLuuThayDoi);
         btnHuy = findViewById(R.id.btnHuySua);
+    }
+
+    private void setupSpinner() {
+        loaiHangList = new ArrayList<>();
+        adapterLoai = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, loaiHangList);
+        spnLoai.setAdapter(adapterLoai);
+    }
+
+    // [MỚI] Hàm lấy danh sách loại để đồng bộ
+    private void layDanhSachLoaiHang() {
+        loaiHangRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                loaiHangList.clear();
+                // Thêm mặc định
+                loaiHangList.add("Đồ ăn vặt");
+                loaiHangList.add("Nước ngọt");
+                loaiHangList.add("Bánh");
+                loaiHangList.add("Kẹo");
+
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    String tenLoai = data.child("tenLoai").getValue(String.class);
+                    if (tenLoai != null && !loaiHangList.contains(tenLoai)) {
+                        loaiHangList.add(tenLoai);
+                    }
+                }
+                adapterLoai.notifyDataSetChanged();
+
+                // Sau khi có danh sách loại, mới load dữ liệu hàng hóa để set selection đúng
+                loadDuLieuCu();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
     }
 
     private void setupImagePicker() {
@@ -141,10 +183,8 @@ public class SuaHangHoaActivity extends AppCompatActivity {
                     HangHoa hh = snapshot.getValue(HangHoa.class);
                     if (hh != null) {
                         edtTen.setText(hh.getTen());
-                        edtLoai.setText(hh.getLoaiHangHoa());
-                        edtGia.setText(String.valueOf((long)hh.getGia())); // Ép kiểu về long để bỏ số thập phân thừa
+                        edtGia.setText(String.valueOf((long)hh.getGia()));
                         edtSoLuong.setText(String.valueOf(hh.getSoLuong()));
-
                         edtTenNCC.setText(hh.getTenNCC());
                         edtEmailNCC.setText(hh.getEmailNCC());
                         edtSdtNCC.setText(hh.getSdtNCC());
@@ -152,6 +192,15 @@ public class SuaHangHoaActivity extends AppCompatActivity {
                         linkAnhCu = hh.getHinhAnh();
                         if (linkAnhCu != null && !linkAnhCu.isEmpty()) {
                             Glide.with(SuaHangHoaActivity.this).load(linkAnhCu).into(imgHinhAnh);
+                        }
+
+                        // [QUAN TRỌNG] Set loại hàng cũ vào Spinner
+                        loaiHangHienTai = hh.getLoaiHangHoa();
+                        if (loaiHangHienTai != null) {
+                            int viTri = adapterLoai.getPosition(loaiHangHienTai);
+                            if (viTri >= 0) {
+                                spnLoai.setSelection(viTri);
+                            }
                         }
                     }
                 }
@@ -168,14 +217,11 @@ public class SuaHangHoaActivity extends AppCompatActivity {
         }
 
         progressDialog.show();
-        // Vô hiệu hóa nút lưu để tránh ấn nhiều lần
         btnLuu.setEnabled(false);
 
         if (uriAnhMoi != null) {
-            // CÓ ẢNH MỚI -> Upload lên Cloudinary trước
             uploadAnhLenCloudinary();
         } else {
-            // KHÔNG CÓ ẢNH MỚI -> Dùng link cũ lưu luôn
             luuVaoDatabase(linkAnhCu);
         }
     }
@@ -186,26 +232,19 @@ public class SuaHangHoaActivity extends AppCompatActivity {
                 .callback(new UploadCallback() {
                     @Override
                     public void onStart(String requestId) { }
-
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) { }
-
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
-                        // Lấy link ảnh từ Cloudinary trả về
                         String urlMoi = (String) resultData.get("secure_url");
-
-                        // Gọi hàm lưu vào Firebase
                         luuVaoDatabase(urlMoi);
                     }
-
                     @Override
                     public void onError(String requestId, ErrorInfo errorInfo) {
                         progressDialog.dismiss();
                         btnLuu.setEnabled(true);
-                        Toast.makeText(SuaHangHoaActivity.this, "Lỗi upload ảnh: " + errorInfo.getDescription(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SuaHangHoaActivity.this, "Lỗi upload ảnh", Toast.LENGTH_SHORT).show();
                     }
-
                     @Override
                     public void onReschedule(String requestId, ErrorInfo errorInfo) { }
                 })
@@ -213,9 +252,13 @@ public class SuaHangHoaActivity extends AppCompatActivity {
     }
 
     private void luuVaoDatabase(String urlHinhAnh) {
-        // Lấy dữ liệu
         String ten = edtTen.getText().toString().trim();
-        String loai = edtLoai.getText().toString().trim();
+
+        // [THAY ĐỔI] Lấy dữ liệu từ Spinner
+        String loai = "";
+        if (spnLoai.getSelectedItem() != null) {
+            loai = spnLoai.getSelectedItem().toString();
+        }
 
         double gia = 0;
         int soLuong = 0;
@@ -223,7 +266,7 @@ public class SuaHangHoaActivity extends AppCompatActivity {
             gia = Double.parseDouble(edtGia.getText().toString().trim());
             soLuong = Integer.parseInt(edtSoLuong.getText().toString().trim());
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Giá hoặc số lượng không hợp lệ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Lỗi số liệu", Toast.LENGTH_SHORT).show();
             progressDialog.dismiss();
             btnLuu.setEnabled(true);
             return;
@@ -233,20 +276,16 @@ public class SuaHangHoaActivity extends AppCompatActivity {
         String emailNCC = edtEmailNCC.getText().toString().trim();
         String sdtNCC = edtSdtNCC.getText().toString().trim();
 
-        // Đóng gói updateMap
         Map<String, Object> updateMap = new HashMap<>();
         updateMap.put("ten", ten);
-        updateMap.put("loaiHangHoa", loai);
+        updateMap.put("loaiHangHoa", loai); // Lưu loại mới chọn
         updateMap.put("gia", gia);
         updateMap.put("soLuong", soLuong);
-        updateMap.put("hinhAnh", urlHinhAnh); // Link ảnh (Cloudinary hoặc cũ)
-
-        // Cần đảm bảo tên key khớp với Firebase (trong themhanghoa bạn dùng: tenNCC, email, sdt)
+        updateMap.put("hinhAnh", urlHinhAnh);
         updateMap.put("tenNCC", tenNCC);
-        updateMap.put("email", emailNCC);
-        updateMap.put("sdt", sdtNCC);
+        updateMap.put("email", emailNCC); // Chú ý key cho khớp với Model (email hay emailNCC)
+        updateMap.put("sdt", sdtNCC);     // Chú ý key cho khớp (sdt hay sdtNCC)
 
-        // Update Firebase
         mRef.updateChildren(updateMap)
                 .addOnSuccessListener(unused -> {
                     progressDialog.dismiss();
@@ -256,7 +295,7 @@ public class SuaHangHoaActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     progressDialog.dismiss();
                     btnLuu.setEnabled(true);
-                    Toast.makeText(SuaHangHoaActivity.this, "Lỗi lưu DB: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SuaHangHoaActivity.this, "Lỗi lưu DB", Toast.LENGTH_SHORT).show();
                 });
     }
 }

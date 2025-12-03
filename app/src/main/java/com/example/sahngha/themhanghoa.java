@@ -1,6 +1,7 @@
 package com.example.sahngha;
 
-import androidx.activity.result.ActivityResultLauncher; // Mới thêm
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull; // Thêm
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,7 +12,7 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton; // Mới thêm
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -19,11 +20,15 @@ import android.widget.Toast;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
+import com.google.firebase.database.DataSnapshot; // Thêm
+import com.google.firebase.database.DatabaseError; // Thêm
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.journeyapps.barcodescanner.ScanContract; // Mới thêm
-import com.journeyapps.barcodescanner.ScanOptions;   // Mới thêm
+import com.google.firebase.database.ValueEventListener; // Thêm
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.util.ArrayList; // Thêm
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,17 +39,23 @@ public class themhanghoa extends AppCompatActivity {
     Spinner spnLoaiHangHoa;
 
     Button btnXacNhan, btnHuy, btnChonAnh;
-    ImageButton btnScanBarcode; // Nút quét mã vạch
+    ImageButton btnScanBarcode;
     ImageView imgHangHoa;
+
     DatabaseReference hangHoaRef;
+    DatabaseReference loaiHangRef;
+
     Uri imageUri;
     private static final int PICK_IMAGE_REQUEST = 1;
+
+    // [MỚI] Danh sách động cho Spinner
+    ArrayList<String> loaiHangList;
+    ArrayAdapter<String> adapterLoaiHang;
 
     // --- KHỞI TẠO LAUNCHER QUÉT MÃ VẠCH ---
     private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(),
             result -> {
                 if(result.getContents() != null) {
-                    // Quét thành công -> Điền mã vào ô nhập
                     edtMaHangHoa.setText(result.getContents());
                     Toast.makeText(this, "Đã quét mã: " + result.getContents(), Toast.LENGTH_SHORT).show();
                 }
@@ -71,15 +82,10 @@ public class themhanghoa extends AppCompatActivity {
 
         // ÁNH XẠ VIEW
         edtMaHangHoa = findViewById(R.id.edtMaHangHoa);
-        btnScanBarcode = findViewById(R.id.btnScanBarcode); // Ánh xạ nút quét
+        btnScanBarcode = findViewById(R.id.btnScanBarcode);
 
         edtTenHangHoa = findViewById(R.id.edtTenHangHoa);
         spnLoaiHangHoa = findViewById(R.id.spnLoaiHangHoa);
-
-        // Cấu hình Spinner
-        String[] loaiHangItems = new String[]{"Nước ngọt", "Bánh", "Kẹo", "Đồ ăn vặt"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, loaiHangItems);
-        spnLoaiHangHoa.setAdapter(adapter);
 
         edtGia = findViewById(R.id.edtGia);
         edtSoLuong = findViewById(R.id.edtSoLuong);
@@ -95,23 +101,63 @@ public class themhanghoa extends AppCompatActivity {
         // KHỞI TẠO FIREBASE
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://quanlyhanghoa-e4135-default-rtdb.asia-southeast1.firebasedatabase.app/");
         hangHoaRef = database.getReference("hanghoa");
+        loaiHangRef = database.getReference("loaihanghoa"); // [MỚI]
+
+        // [CẬP NHẬT] CẤU HÌNH SPINNER ĐỘNG
+        loaiHangList = new ArrayList<>();
+        adapterLoaiHang = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, loaiHangList);
+        spnLoaiHangHoa.setAdapter(adapterLoaiHang);
+
+        // Gọi hàm lấy dữ liệu loại hàng
+        layDanhSachLoaiHangTuFirebase();
 
         // SỰ KIỆN CÁC NÚT
         btnChonAnh.setOnClickListener(v -> openGallery());
 
-        // --- SỰ KIỆN NÚT QUÉT MÃ ---
         btnScanBarcode.setOnClickListener(v -> {
             ScanOptions options = new ScanOptions();
             options.setPrompt("Hướng camera vào mã vạch");
             options.setBeepEnabled(true);
-            options.setOrientationLocked(true); // Khóa xoay dọc
-            options.setCaptureActivity(ManHinhQuetDoc.class); // Sử dụng màn hình dọc (nếu đã tạo class này)
+            options.setOrientationLocked(true);
+            options.setCaptureActivity(ManHinhQuetDoc.class);
             barcodeLauncher.launch(options);
         });
-        // ---------------------------
 
         btnXacNhan.setOnClickListener(v -> themHangHoa());
         btnHuy.setOnClickListener(v -> finish());
+    }
+
+    // [MỚI] HÀM LẤY DANH SÁCH LOẠI TỪ FIREBASE VÀ ĐỒNG BỘ VÀO SPINNER
+    private void layDanhSachLoaiHangTuFirebase() {
+        loaiHangRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                loaiHangList.clear();
+
+                // 1. Thêm các loại mặc định (Giống bên MainActivity để đồng bộ)
+                loaiHangList.add("Đồ ăn vặt");
+                loaiHangList.add("Nước ngọt");
+                loaiHangList.add("Bánh");
+                loaiHangList.add("Kẹo");
+                // Bạn có thể thêm "Sách", "Home" vào đây nếu muốn mặc định có sẵn
+
+                // 2. Thêm các loại mới từ Firebase
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    String tenLoai = data.child("tenLoai").getValue(String.class);
+                    // Kiểm tra null và tránh trùng lặp với danh sách mặc định
+                    if (tenLoai != null && !loaiHangList.contains(tenLoai)) {
+                        loaiHangList.add(tenLoai);
+                    }
+                }
+                // Cập nhật giao diện Spinner
+                adapterLoaiHang.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(themhanghoa.this, "Lỗi tải danh mục", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void openGallery() {
@@ -132,7 +178,13 @@ public class themhanghoa extends AppCompatActivity {
     private void themHangHoa() {
         String ma = edtMaHangHoa.getText().toString().trim();
         String ten = edtTenHangHoa.getText().toString().trim();
-        String loai = spnLoaiHangHoa.getSelectedItem().toString();
+
+        // Lấy loại từ Spinner (Lúc này Spinner đã có dữ liệu từ Firebase)
+        String loai = "";
+        if (spnLoaiHangHoa.getSelectedItem() != null) {
+            loai = spnLoaiHangHoa.getSelectedItem().toString();
+        }
+
         String giaStr = edtGia.getText().toString().trim();
         String soLuongStr = edtSoLuong.getText().toString().trim();
         String tenNCC = edtTenNCC.getText().toString().trim();
@@ -147,15 +199,16 @@ public class themhanghoa extends AppCompatActivity {
         double gia = Double.parseDouble(giaStr);
         int soLuong = Integer.parseInt(soLuongStr);
 
+        String finalLoai = loai;
         hangHoaRef.child(ma).get().addOnSuccessListener(snapshot -> {
             if (snapshot.exists()) {
                 Toast.makeText(this, "Mã hàng hóa đã tồn tại!", Toast.LENGTH_SHORT).show();
             } else {
                 if (imageUri != null) {
                     Toast.makeText(this, "Đang tải ảnh...", Toast.LENGTH_SHORT).show();
-                    uploadImageToCloudinary(ma, ten, loai, gia, soLuong, tenNCC, email, sdt);
+                    uploadImageToCloudinary(ma, ten, finalLoai, gia, soLuong, tenNCC, email, sdt);
                 } else {
-                    themhanghoavaodb(ma, ten, loai, gia, soLuong, "", tenNCC, email, sdt);
+                    themhanghoavaodb(ma, ten, finalLoai, gia, soLuong, "", tenNCC, email, sdt);
                 }
             }
         }).addOnFailureListener(e ->

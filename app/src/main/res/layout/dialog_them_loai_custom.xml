@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="340dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_rounded"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Thêm Loại Hàng Mới"
+        android:textColor="#000"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="15dp"/>
+
+    <EditText
+        android:id="@+id/edtTenLoai"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_search_rounded"
+        android:hint="Nhập tên loại..."
+        android:paddingStart="15dp"
+        android:textSize="14sp"
+        android:layout_marginBottom="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chọn biểu tượng:"
+        android:textColor="#555"
+        android:textStyle="italic"
+        android:textSize="12sp"
+        android:layout_marginBottom="5dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:scrollbars="vertical"
+        android:layout_marginBottom="20dp">
+
+        <GridLayout
+            android:id="@+id/gridStickers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="4"
+            android:alignmentMode="alignMargins"
+            android:useDefaultMargins="true">
+
+            <ImageView android:src="@android:drawable/btn_star_big_on" android:tag="star" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_gallery" android:tag="gallery" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_myplaces" android:tag="place" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_compass" android:tag="compass" style="@style/StickerStyle"/>
+
+            <ImageView android:src="@android:drawable/ic_menu_edit" android:tag="office_pen" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_agenda" android:tag="office_book" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_call" android:tag="office_phone" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_info_details" android:tag="office_info" style="@style/StickerStyle"/>
+
+            <ImageView android:src="@android:drawable/ic_menu_manage" android:tag="tool_gear" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_camera" android:tag="tool_camera" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_save" android:tag="tool_save" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_view" android:tag="tool_view" style="@style/StickerStyle"/>
+
+            <ImageView android:src="@android:drawable/ic_delete" android:tag="other_delete" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_search" android:tag="other_search" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_share" android:tag="other_share" style="@style/StickerStyle"/>
+            <ImageView android:src="@android:drawable/ic_menu_upload" android:tag="other_upload" style="@style/StickerStyle"/>
+
+        </GridLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/btnHuy"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Hủy"
+            android:backgroundTint="#CCCCCC"
+            android:textColor="#000"
+            android:layout_marginEnd="10dp"/>
+
+        <Button
+            android:id="@+id/btnXacNhanThem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Thêm"
+            android:backgroundTint="#367486"
+            android:textColor="#FFF"/>
+    </LinearLayout>
+</LinearLayout>

@@ -12,10 +12,9 @@ import android.widget.Toast;
 
 public class Trangchu extends AppCompatActivity {
 
-    // Khai báo biến
     CardView cvQuanLyHangHoa;
-    CardView cvQuanLyPhieuNhap; // <-- KHAI BÁO THÊM CARDVIEW MỚI
-    CardView cvThongKe; // <<< 1. KHAI BÁO BIẾN THỐNG KÊ MỚI
+    CardView cvQuanLyPhieuNhap;
+    CardView cvThongKe;
     Button btnLogout;
     TextView tvWelcome;
 
@@ -24,19 +23,14 @@ public class Trangchu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trangchu);
 
-        // ======== ÁNH XẠ VIEW ========
-        // Tìm CardView theo id
+        // ÁNH XẠ VIEW
         cvQuanLyHangHoa = findViewById(R.id.cvQuanLyHangHoa);
-        cvQuanLyPhieuNhap = findViewById(R.id.cvQuanLyPhieuNhap); // <-- ÁNH XẠ CARDVIEW PHIẾU NHẬP
-        cvThongKe = findViewById(R.id.cvThongKe); // <<< 2. ÁNH XẠ CARDVIEW THỐNG KÊ
-
-        // Ánh xạ thêm nút đăng xuất và lời chào
+        cvQuanLyPhieuNhap = findViewById(R.id.cvQuanLyPhieuNhap);
+        cvThongKe = findViewById(R.id.cvThongKe);
         btnLogout = findViewById(R.id.btnLogout);
         tvWelcome = findViewById(R.id.tvWelcome);
 
-        // ======== SỰ KIỆN CLICK ========
-
-        // 1. Sự kiện ấn vào thẻ "Quản lý hàng hoá"
+        // 1. Quản lý hàng hoá
         cvQuanLyHangHoa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,17 +39,16 @@ public class Trangchu extends AppCompatActivity {
             }
         });
 
-        // 2. Sự kiện ấn vào thẻ "Quản lý phiếu nhập"
+        // 2. Quản lý phiếu nhập
         cvQuanLyPhieuNhap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Tạo Intent để chuyển sang màn hình Danhsachphieunhap
                 Intent intent = new Intent(Trangchu.this, DanhSachPhieuNhapActivity.class);
                 startActivity(intent);
             }
         });
 
-        // 3. Sự kiện ấn nút Đăng xuất
+        // 3. Đăng xuất
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,11 +57,11 @@ public class Trangchu extends AppCompatActivity {
             }
         });
 
-        // 4. Sự kiện ấn vào thẻ "Báo cáo thống kê" <<< 3. SỰ KIỆN MỚI
+        // 4. Báo cáo thống kê
         cvThongKe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Trangchu.this, ThongKeActivity.class);
+                Intent intent = new Intent(Trangchu.this, BaoCaoChiTietActivity.class);
                 startActivity(intent);
             }
         });

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" /> <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" /> <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -24,22 +24,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SửaHàngHóa">
 
-        <activity android:name=".ThongKeActivity"
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
-            android:label="Thống Kê"/>
-
-        <activity android:name=".BaoCaoChiTietActivity"
-            android:exported="false"
-            android:label="Báo Cáo Chi Tiết"/>
-
-        <activity
-            android:name=".ManHinhQuetDoc"
-            android:screenOrientation="fullSensor"
-            android:stateNotNeeded="true"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:exported="false" />
-
-        <activity android:name=".DanhSachTheoLoaiActivity" />
+            android:grantUriPermissions="true">
+        </provider>
 
         <activity
             android:name=".Welcome"
@@ -56,32 +46,55 @@
             android:exported="false"
             android:label="Màn Hình Đăng Nhập"
             android:parentActivityName=".Welcome" />
+
         <activity
             android:name=".Trangchu"
             android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-        <activity android:name=".themhanghoa" />
+
+        <activity
+            android:name=".themhanghoa" />
+
         <activity
             android:name=".ChiTietHangHoaActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".SuaHangHoaActivity"
             android:exported="false"
             android:label="Sửa Hàng Hóa"
             android:parentActivityName=".ChiTietHangHoaActivity" />
+
+        <activity android:name=".BaoCaoChiTietActivity"
+            android:exported="false"
+            android:label="Báo Cáo Thống Kê"/>
+
         <activity
             android:name=".DanhSachPhieuNhapActivity"
             android:exported="false"
             android:label="Danh Sách Phiếu Nhập" />
+
         <activity
             android:name=".ThemPhieuNhap"
             android:exported="false"
             android:label="Tạo Phiếu Nhập Mới"
             android:parentActivityName=".DanhSachPhieuNhapActivity" />
+
         <activity android:name=".XemChiTietPhieu" />
+
+        <activity
+            android:name=".ManHinhQuetDoc"
+            android:screenOrientation="fullSensor"
+            android:stateNotNeeded="true"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:exported="false" />
+
+        <activity android:name=".DanhSachTheoLoaiActivity" />
+
     </application>
 
 </manifest>

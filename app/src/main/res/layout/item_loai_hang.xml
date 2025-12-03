@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutItem"
+    android:layout_width="85dp"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="8dp"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="5dp"
+    android:background="?attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/imgIcon"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:background="@drawable/bg_search_rounded"
+        android:backgroundTint="#FFFFFF"
+        android:elevation="2dp"
+        android:padding="12dp"
+        android:src="@android:drawable/btn_star_big_on" />
+
+    <TextView
+        android:id="@+id/txtTenLoai"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Tên loại"
+        android:textColor="#333"
+        android:textSize="12sp"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:textStyle="bold" />
+</LinearLayout>
