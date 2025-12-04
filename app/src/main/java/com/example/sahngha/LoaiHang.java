@@ -3,17 +3,41 @@ package com.example.sahngha;
 public class LoaiHang {
     private String id;
     private String tenLoai;
-    private String icon; // Lưu tên icon (vd: "star", "camera")
+    private String icon;
 
-    public LoaiHang() { }
+    // 1. Constructor rỗng (Bắt buộc để Firebase đọc dữ liệu)
+    public LoaiHang() {
+    }
 
+    // 2. Constructor đầy đủ tham số (Để dùng trong MainActivity)
     public LoaiHang(String id, String tenLoai, String icon) {
         this.id = id;
         this.tenLoai = tenLoai;
         this.icon = icon;
     }
 
-    public String getId() { return id; }
-    public String getTenLoai() { return tenLoai; }
-    public String getIcon() { return icon; }
+    // Getter và Setter
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTenLoai() {
+        return tenLoai;
+    }
+
+    public void setTenLoai(String tenLoai) {
+        this.tenLoai = tenLoai;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
 }

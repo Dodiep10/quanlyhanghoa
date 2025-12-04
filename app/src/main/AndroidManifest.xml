@@ -4,9 +4,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <uses-feature
@@ -18,83 +19,73 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/teal_and_white_modern_mobile_app_developer_instagram_post"
         android:label="quanlyhanghoa"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SửaHàngHóa">
+        <activity
+            android:name=".ThongTinTaiKhoanActivity"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
-            android:grantUriPermissions="true">
-        </provider>
+            android:grantUriPermissions="true"></provider>
 
         <activity
             android:name=".Welcome"
             android:exported="true"
-            android:label="Màn Hình Chào Mừng">
+            android:label="ANDI">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".Dangnhap"
             android:exported="false"
             android:label="Màn Hình Đăng Nhập"
             android:parentActivityName=".Welcome" />
-
         <activity
             android:name=".Trangchu"
             android:exported="false" />
-
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-
-        <activity
-            android:name=".themhanghoa" />
-
+        <activity android:name=".themhanghoa" />
         <activity
             android:name=".ChiTietHangHoaActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
-
         <activity
             android:name=".SuaHangHoaActivity"
             android:exported="false"
             android:label="Sửa Hàng Hóa"
             android:parentActivityName=".ChiTietHangHoaActivity" />
-
-        <activity android:name=".BaoCaoChiTietActivity"
+        <activity
+            android:name=".BaoCaoChiTietActivity"
             android:exported="false"
-            android:label="Báo Cáo Thống Kê"/>
-
+            android:label="Báo Cáo Thống Kê" />
         <activity
             android:name=".DanhSachPhieuNhapActivity"
             android:exported="false"
             android:label="Danh Sách Phiếu Nhập" />
-
         <activity
             android:name=".ThemPhieuNhap"
             android:exported="false"
             android:label="Tạo Phiếu Nhập Mới"
             android:parentActivityName=".DanhSachPhieuNhapActivity" />
-
         <activity android:name=".XemChiTietPhieu" />
-
         <activity
             android:name=".ManHinhQuetDoc"
+            android:exported="false"
             android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:exported="false" />
-
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity android:name=".DanhSachTheoLoaiActivity" />
-
     </application>
 
 </manifest>

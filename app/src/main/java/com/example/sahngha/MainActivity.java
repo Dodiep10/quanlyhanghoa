@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridLayout; // [QUAN TRỌNG] Thêm thư viện này
+import android.widget.GridLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
         rvLoaiHang = findViewById(R.id.rvLoaiHang);
 
         // --- 2. KHỞI TẠO FIREBASE ---
+        // Lưu ý: Đảm bảo URL Database của bạn chính xác
         database = FirebaseDatabase.getInstance("https://quanlyhanghoa-e4135-default-rtdb.asia-southeast1.firebasedatabase.app/");
         hangHoaRef = database.getReference("hanghoa");
         loaiHangRef = database.getReference("loaihanghoa");
@@ -118,10 +119,12 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
         });
 
         lvHangHoa.setOnItemClickListener((parent, view, position, id) -> {
-            HangHoa selectedHangHoa = dsHangHoa.get(position);
-            Intent detailIntent = new Intent(MainActivity.this, ChiTietHangHoaActivity.class);
-            detailIntent.putExtra("MA_HANG_HOA", selectedHangHoa.getMaHangHoa());
-            startActivity(detailIntent);
+            if (position >= 0 && position < dsHangHoa.size()) {
+                HangHoa selectedHangHoa = dsHangHoa.get(position);
+                Intent detailIntent = new Intent(MainActivity.this, ChiTietHangHoaActivity.class);
+                detailIntent.putExtra("MA_HANG_HOA", selectedHangHoa.getMaHangHoa());
+                startActivity(detailIntent);
+            }
         });
 
         edtTimHh.addTextChangedListener(new TextWatcher() {
@@ -142,8 +145,10 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 dsLoaiHang.clear();
+                // Thêm các mục mặc định (Hardcode)
+                // Đã sửa lỗi chính tả "start" -> "star" ở mục Nước ngọt
                 dsLoaiHang.add(new LoaiHang("def1", "Đồ ăn vặt", "star"));
-                dsLoaiHang.add(new LoaiHang("def2", "Nước ngọt", "start"));
+                dsLoaiHang.add(new LoaiHang("def2", "Nước ngọt", "star"));
                 dsLoaiHang.add(new LoaiHang("def3", "Bánh", "book"));
                 dsLoaiHang.add(new LoaiHang("def4", "Kẹo", "home"));
 
@@ -171,19 +176,23 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
     // Hàm kiểm tra trùng lặp tên loại
     private boolean isDuplicated(String ten) {
         for (LoaiHang item : dsLoaiHang) {
-            if (item.getTenLoai().equalsIgnoreCase(ten)) return true;
+            if (item.getTenLoai() != null && item.getTenLoai().equalsIgnoreCase(ten)) return true;
         }
         return false;
     }
 
     private void apDungBoLocLoai(String loaiCanLoc) {
         if (currentCategoryFilter.equals(loaiCanLoc)) {
-            currentCategoryFilter = "";
+            currentCategoryFilter = ""; // Bỏ lọc nếu chọn lại cái đang chọn
         } else {
             currentCategoryFilter = loaiCanLoc;
         }
         filterData(edtTimHh.getText().toString(), currentCategoryFilter);
-        loaiHangAdapter.setSelectedId(currentCategoryFilter);
+
+        // Cần đảm bảo adapter có phương thức setSelectedId
+        if(loaiHangAdapter != null) {
+            loaiHangAdapter.setSelectedId(currentCategoryFilter);
+        }
     }
 
     // === [CẬP NHẬT] HÀM HIỂN THỊ DIALOG VỚI GRIDLAYOUT ===
@@ -199,9 +208,12 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
         EditText edtTen = dialog.findViewById(R.id.edtTenLoai);
         Button btnHuy = dialog.findViewById(R.id.btnHuy);
         Button btnThem = dialog.findViewById(R.id.btnXacNhanThem);
-
-        // Lấy Grid chứa các sticker (Thay vì ánh xạ từng ảnh)
         GridLayout gridStickers = dialog.findViewById(R.id.gridStickers);
+
+        if (gridStickers == null) {
+            Toast.makeText(this, "Lỗi layout dialog: không tìm thấy gridStickers", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // Sự kiện khi bấm vào 1 sticker bất kỳ
         View.OnClickListener stickerClickListener = v -> {
@@ -211,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
                 child.setBackgroundResource(0);
             }
 
-            // 2. Đánh dấu sticker vừa chọn
+            // 2. Đánh dấu sticker vừa chọn (Cần có drawable bg_sticker_selected)
             v.setBackgroundResource(R.drawable.bg_sticker_selected);
 
             // 3. Lấy tag để lưu (star, rotate, book, home...)
@@ -226,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
             child.setOnClickListener(stickerClickListener);
         }
 
-        // Mặc định chọn cái đầu tiên (Ngôi sao)
+        // Mặc định chọn cái đầu tiên
         if (gridStickers.getChildCount() > 0) {
             gridStickers.getChildAt(0).performClick();
         }
@@ -249,10 +261,10 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
     private void luuLoaiHangLenFirebase(String tenLoai, String iconTag) {
         String key = loaiHangRef.push().getKey();
         if (key != null) {
-            DatabaseReference newItem = loaiHangRef.child(key);
-            newItem.child("tenLoai").setValue(tenLoai);
-            newItem.child("icon").setValue(iconTag)
-                    .addOnSuccessListener(aVoid -> Toast.makeText(MainActivity.this, "Đã thêm: " + tenLoai, Toast.LENGTH_SHORT).show());
+            LoaiHang newLoai = new LoaiHang(key, tenLoai, iconTag);
+            loaiHangRef.child(key).setValue(newLoai)
+                    .addOnSuccessListener(aVoid -> Toast.makeText(MainActivity.this, "Đã thêm: " + tenLoai, Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         }
     }
 
@@ -284,12 +296,18 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
                 originalList.clear();
                 for (DataSnapshot item : snapshot.getChildren()) {
                     HangHoa hh = item.getValue(HangHoa.class);
-                    if (hh != null) originalList.add(hh);
+                    if (hh != null) {
+                        // Gán key firebase vào object nếu cần thiết
+                        hh.setMaHangHoa(item.getKey());
+                        originalList.add(hh);
+                    }
                 }
                 filterData(edtTimHh.getText().toString(), currentCategoryFilter);
             }
             @Override
-            public void onCancelled(@NonNull DatabaseError error) { }
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(MainActivity.this, "Lỗi tải dữ liệu", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -302,7 +320,10 @@ public class MainActivity extends AppCompatActivity implements HangHoaAdapter.On
         new AlertDialog.Builder(this)
                 .setTitle("Xóa hàng hóa")
                 .setMessage("Bạn có chắc muốn xóa?")
-                .setPositiveButton("Xóa", (dialog, which) -> hangHoaRef.child(hangHoaId).removeValue())
+                .setPositiveButton("Xóa", (dialog, which) -> {
+                    hangHoaRef.child(hangHoaId).removeValue();
+                    Toast.makeText(this, "Đã xóa", Toast.LENGTH_SHORT).show();
+                })
                 .setNegativeButton("Hủy", null)
                 .show();
     }
